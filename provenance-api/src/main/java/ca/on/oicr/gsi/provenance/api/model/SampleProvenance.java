@@ -38,7 +38,7 @@ public interface SampleProvenance {
     
     public String getIusTag();
     
-    public String getSampleId();
+    public String getSampleProvenanceId();
     
     public String getVersion();
     
