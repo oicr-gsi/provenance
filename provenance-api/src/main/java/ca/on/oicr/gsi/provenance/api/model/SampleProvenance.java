@@ -26,7 +26,7 @@ public interface SampleProvenance {
 
     public Map<String, Set<String>> getSequencerRunAttributes();
 
-    public String getSequencerRunPlatformName();
+    public String getSequencerRunPlatformModel();
 
     public String getLaneNumber();
 

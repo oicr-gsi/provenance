@@ -20,7 +20,7 @@ public class Versioning {
         sb.append(sp.getSampleAttributes());
         sb.append(sp.getSequencerRunName());
         sb.append(sp.getSequencerRunAttributes());
-        sb.append(sp.getSequencerRunPlatformName());
+        sb.append(sp.getSequencerRunPlatformModel());
         sb.append(sp.getLaneNumber());
         sb.append(sp.getLaneAttributes());
         sb.append(sp.getIusTag());
