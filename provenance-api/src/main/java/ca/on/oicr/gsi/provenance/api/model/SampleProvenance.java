@@ -18,11 +18,7 @@ public interface SampleProvenance {
 
     public String getParentSampleName();
 
-    public Map<String, Set<String>> getParentSampleAttributes();
-
     public String getSampleName();
-
-    public String getSampleOrganismCode();
 
     public Map<String, Set<String>> getSampleAttributes();
 

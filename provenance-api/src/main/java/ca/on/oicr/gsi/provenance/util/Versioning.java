@@ -16,9 +16,7 @@ public class Versioning {
         sb.append(sp.getStudyAttributes());
         sb.append(sp.getRootSampleName());
         sb.append(sp.getParentSampleName());
-        sb.append(sp.getParentSampleAttributes());
         sb.append(sp.getSampleName());
-        sb.append(sp.getSampleOrganismCode());
         sb.append(sp.getSampleAttributes());
         sb.append(sp.getSequencerRunName());
         sb.append(sp.getSequencerRunAttributes());
