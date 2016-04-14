@@ -2,6 +2,7 @@ package ca.on.oicr.gsi.provenance.model;
 
 import java.util.Map;
 import java.util.Set;
+import org.joda.time.DateTime;
 
 /**
  *
@@ -51,7 +52,7 @@ public interface AnalysisProvenance {
 
     public String getSkip();
 
-    public String getLastModified();
+    public DateTime getLastModified();
 
     public Set<IusLimsKey> getIusLimsKeys();
 
