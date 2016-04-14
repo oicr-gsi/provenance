@@ -1,4 +1,4 @@
-package ca.on.oicr.gsi.provenance.api;
+package ca.on.oicr.gsi.provenance;
 
 /**
  *

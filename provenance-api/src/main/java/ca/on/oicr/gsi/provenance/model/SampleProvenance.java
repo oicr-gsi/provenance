@@ -1,4 +1,4 @@
-package ca.on.oicr.gsi.provenance.api.model;
+package ca.on.oicr.gsi.provenance.model;
 
 import java.util.Map;
 import java.util.Set;

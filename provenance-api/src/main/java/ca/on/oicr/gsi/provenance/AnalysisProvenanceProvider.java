@@ -1,6 +1,6 @@
-package ca.on.oicr.gsi.provenance.api;
+package ca.on.oicr.gsi.provenance;
 
-import ca.on.oicr.gsi.provenance.api.model.AnalysisProvenance;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;

@@ -1,6 +1,6 @@
 package ca.on.oicr.gsi.provenance.util;
 
-import ca.on.oicr.gsi.provenance.api.model.SampleProvenance;
+import ca.on.oicr.gsi.provenance.model.SampleProvenance;
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
 
