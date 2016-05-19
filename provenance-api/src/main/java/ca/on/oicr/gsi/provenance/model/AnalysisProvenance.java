@@ -56,4 +56,6 @@ public interface AnalysisProvenance {
 
     public Set<IusLimsKey> getIusLimsKeys();
 
+    public Map<String, Set<String>> getIusAttributes();
+
 }
