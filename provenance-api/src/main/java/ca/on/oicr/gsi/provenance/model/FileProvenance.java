@@ -3,6 +3,7 @@ package ca.on.oicr.gsi.provenance.model;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import org.joda.time.DateTime;
 
 /**
  *
@@ -95,7 +96,7 @@ public interface FileProvenance {
 
     public String getSkip();
 
-    public String getLastModified();
+    public DateTime getLastModified();
 
     public Collection<IusLimsKey> getIusLimsKeys();
 
