@@ -50,7 +50,7 @@ public interface AnalysisProvenance {
 
     public Map<String, Set<String>> getFileAttributes();
 
-    public String getSkip();
+    public Boolean getSkip();
 
     public DateTime getLastModified();
 
