@@ -19,6 +19,8 @@ public interface LaneProvenance {
     public String getLaneNumber();
 
     public Map<String, Set<String>> getLaneAttributes();
+    
+    public Boolean getSkip();
 
     public String getLaneProvenanceId();
 

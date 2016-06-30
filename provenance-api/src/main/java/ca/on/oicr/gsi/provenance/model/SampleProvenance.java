@@ -31,13 +31,15 @@ public interface SampleProvenance {
     public String getLaneNumber();
 
     public Map<String, Set<String>> getLaneAttributes();
-    
+
     public String getIusTag();
-    
+
+    public Boolean getSkip();
+
     public String getSampleProvenanceId();
-    
+
     public String getVersion();
-    
+
     public DateTime getLastModified();
 
 }
