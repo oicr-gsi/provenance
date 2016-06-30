@@ -2,11 +2,14 @@ package ca.on.oicr.gsi.provenance;
 
 import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenance;
+import ca.on.oicr.gsi.provenance.model.FileProvenanceFromAnalysisProvenance;
+import ca.on.oicr.gsi.provenance.model.FileProvenanceFromLaneProvenance;
 import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import ca.on.oicr.gsi.provenance.model.LimsKey;
 import ca.on.oicr.gsi.provenance.model.SampleProvenance;
-import ca.on.oicr.gsi.provenance.model.DefaultFileProvenance;
+import ca.on.oicr.gsi.provenance.model.FileProvenanceFromSampleProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenanceParam;
+import ca.on.oicr.gsi.provenance.model.LaneProvenance;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
+import org.joda.time.DateTime;
 
 /**
  *
@@ -23,10 +27,14 @@ public class DefaultProvenanceClient implements ProvenanceClient {
 
     private final AnalysisProvenanceProvider analysisProvenanceProvider;
     private final SampleProvenanceProvider sampleProvenanceProvider;
+    private final LaneProvenanceProvider laneProvenanceProvider;
 
-    public DefaultProvenanceClient(AnalysisProvenanceProvider analyisProvenanceProvider, SampleProvenanceProvider sampleProvenanceProvider) {
+    public DefaultProvenanceClient(AnalysisProvenanceProvider analyisProvenanceProvider,
+            SampleProvenanceProvider sampleProvenanceProvider,
+            LaneProvenanceProvider laneProvenanceProvider) {
         this.analysisProvenanceProvider = analyisProvenanceProvider;
         this.sampleProvenanceProvider = sampleProvenanceProvider;
+        this.laneProvenanceProvider = laneProvenanceProvider;
     }
 
     @Override
@@ -40,6 +48,16 @@ public class DefaultProvenanceClient implements ProvenanceClient {
     }
 
     @Override
+    public Collection<LaneProvenance> getLaneProvenance() {
+        return laneProvenanceProvider.getLaneProvenance();
+    }
+
+    @Override
+    public Collection<LaneProvenance> getLaneProvenance(Map<String, Set<String>> filters) {
+        return laneProvenanceProvider.getLaneProvenance(filters);
+    }
+
+    @Override
     public Collection<FileProvenance> getFileProvenance() {
 
         //build sample provenance lookup table
@@ -50,51 +68,131 @@ public class DefaultProvenanceClient implements ProvenanceClient {
             }
         }
 
+        //build lane provenance lookup table
+        Map<String, LaneProvenance> lps = new HashMap<>();
+        for (LaneProvenance lp : this.getLaneProvenance()) {
+            if (lps.put(lp.getLaneProvenanceId(), lp) != null) {
+                throw new RuntimeException("Duplicate lane provenance ID = [" + lp.getLaneProvenanceId() + "]");
+            }
+        }
+
         //build file provenance
         List<FileProvenance> fps = new ArrayList<>();
-        for (AnalysisProvenance ap : analysisProvenanceProvider.getAnalysisProvenance()) {
-            //if ("success".equals(ap.getProcessingStatus()) && "completed".equals(ap.getWorkflowRunStatus())) {
-            List<DefaultFileProvenance.DefaultFileProvenanceBuilder> builders = new ArrayList<>();
+        Collection<AnalysisProvenance> aps = analysisProvenanceProvider.getAnalysisProvenance();
+        for (AnalysisProvenance ap : aps) {
+            List<FileProvenanceFromAnalysisProvenance> tmp = new ArrayList<>();
             boolean skip = false;
             String status = "OKAY";
 
             for (IusLimsKey ik : ap.getIusLimsKeys()) {
 
-                LimsKey lk = ik.getLimsKey();
-                SampleProvenance sp = null;
-                if (lk == null) {
+                //get lims key
+                LimsKey limsKey = ik.getLimsKey();
+                String limsKeyId = null;
+                String limsKeyProvider = null;
+                String limsKeyVersion = null;
+                DateTime limsKeyLastModified = null;
+                if (limsKey == null) {
                     status = "ERROR";
                 } else {
-                    sp = sps.get(ik.getLimsKey().getId());
+                    limsKeyId = limsKey.getId();
+                    limsKeyProvider = limsKey.getProvider();
+                    limsKeyVersion = limsKey.getVersion();
+                    limsKeyLastModified = limsKey.getLastModified();
                 }
 
-                DefaultFileProvenance.DefaultFileProvenanceBuilder b = DefaultFileProvenance.builder();
-
-                if (sp == null) {
+                //get provenance objects
+                SampleProvenance sp = sps.get(limsKeyId);
+                LaneProvenance lp = lps.get(limsKeyId);
+                if ((sp == null && lp == null) || (sp != null && lp != null)) {
                     status = "ERROR";
-                } else if (!skip) {
-                    b.sampleProvenance(sp);
+                }
 
-                    if (ap.getSkip().equals("true")) {
+                //check that the lims key version and last modified matches provenance object's version and last modified
+                if (status.equals("ERROR")) {
+                    //
+                } else if (sp != null) {
+                    if (sp.getVersion() == null || !sp.getVersion().equals(limsKeyVersion)) {
+                        status = "ERROR";
+                    }
+                    if (sp.getLastModified() == null || !sp.getLastModified().equals(limsKeyLastModified)) {
+                        status = "ERROR";
+                    }
+                } else if (lp != null) {
+                    if (lp.getVersion() == null || !lp.getVersion().equals(limsKeyVersion)) {
+                        status = "ERROR";
+                    }
+                    if (lp.getLastModified() == null || !lp.getLastModified().equals(limsKeyLastModified)) {
+                        status = "ERROR";
+                    }
+                } else {
+                    //
+                }
+
+                //instantiate file provenance for each lims key associated with the current analysis provenance object
+                FileProvenanceFromAnalysisProvenance b;
+                if ((sp == null && lp == null) || (sp != null && lp != null)) {
+                    //unable to build fp
+                    b = new FileProvenanceFromAnalysisProvenance();
+                    b.setAnalysisProvenance(ap);
+                } else if (sp != null) {
+                    FileProvenanceFromSampleProvenance fpSp = new FileProvenanceFromSampleProvenance();
+                    fpSp.sampleProvenance(sp);
+                    fpSp.setAnalysisProvenance(ap);
+                    b = fpSp;
+
+                    if (Boolean.TRUE.equals(ap.getSkip())) {
+                        skip = true;
+                    } else if (Boolean.TRUE.equals(sp.getSkip())) {
+                        skip = true;
+                    } else if (ap.getFileAttributes().containsKey("skip")
+                            || ap.getWorkflowRunAttributes().containsKey("skip")) {
                         skip = true;
                     } else if (sp.getLaneAttributes().containsKey("skip")
                             || sp.getSequencerRunAttributes().containsKey("skip")
                             || sp.getSampleAttributes().containsKey("skip")
                             || sp.getStudyAttributes().containsKey("skip")) {
                         skip = true;
+                    } else {
+                        //
                     }
+                } else if (lp != null) {
+                    FileProvenanceFromLaneProvenance fpLp = new FileProvenanceFromLaneProvenance();
+                    fpLp.laneProvenance(lp);
+                    fpLp.setAnalysisProvenance(ap);
+                    b = fpLp;
+
+                    if (Boolean.TRUE.equals(ap.getSkip())) {
+                        skip = true;
+                    } else if (ap.getFileAttributes().containsKey("skip")
+                            || ap.getWorkflowRunAttributes().containsKey("skip")) {
+                        skip = true;
+                    } else if (Boolean.TRUE.equals(lp.getSkip())) {
+                        skip = true;
+                    } else if (lp.getLaneAttributes().containsKey("skip")
+                            || lp.getSequencerRunAttributes().containsKey("skip")) {
+                        skip = true;
+                    } else {
+                        //
+                    }
+                } else {
+                    //catch all
+                    status = "ERROR";
+                    b = new FileProvenanceFromAnalysisProvenance();
+                    b.setAnalysisProvenance(ap);
                 }
 
-                b.analysisProvenance(ap);
-                builders.add(b);
+                b.setStatus(status);
+
+                tmp.add(b);
             }
 
-            for (DefaultFileProvenance.DefaultFileProvenanceBuilder b : builders) {
+            for (FileProvenanceFromAnalysisProvenance b : tmp) {
                 if (skip) {
-                    b.skip(true);
+                    b.setSkip(true);
                 }
 
-                fps.add(b.build());
+                fps.add(b);
             }
         }
 
