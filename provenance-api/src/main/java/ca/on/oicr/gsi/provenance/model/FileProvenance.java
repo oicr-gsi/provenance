@@ -99,8 +99,12 @@ public interface FileProvenance {
     public DateTime getLastModified();
 
     public Collection<IusLimsKey> getIusLimsKeys();
-
+    
     public Collection<String> getIusSWIDs();
+    
+    public Collection<String> getIusTags();
+    
+    public Map<String, Set<String>> getIusAttributes();
     
     public String getStatus();
 
