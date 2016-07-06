@@ -1,8 +1,8 @@
 package ca.on.oicr.gsi.provenance.model;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
@@ -20,12 +20,12 @@ public class DefaultFileProvenance implements FileProvenance {
     @Singular
     private final Collection<String> studyTitles;
 
-    private final Map<String, Set<String>> studyAttributes;
+    private final SortedMap<String, SortedSet<String>> studyAttributes;
 
     @Singular
     private final Collection<String> experimentNames;
 
-    private final Map<String, Set<String>> experimentAttributes;
+    private final SortedMap<String, SortedSet<String>> experimentAttributes;
 
     @Singular
     private final Collection<String> rootSampleNames;
@@ -33,7 +33,7 @@ public class DefaultFileProvenance implements FileProvenance {
     @Singular
     private final Collection<String> parentSampleNames;
     private final Collection<String> parentSampleOrganismIDs;
-    private final Map<String, Set<String>> parentSampleAttributes;
+    private final SortedMap<String, SortedSet<String>> parentSampleAttributes;
 
     @Singular
     private final Collection<String> sampleNames;
@@ -41,12 +41,12 @@ public class DefaultFileProvenance implements FileProvenance {
 
     @Singular
     private final Collection<String> sampleOrganismCodes;
-    private final Map<String, Set<String>> sampleAttributes;
+    private final SortedMap<String, SortedSet<String>> sampleAttributes;
 
     @Singular
     private final Collection<String> sequencerRunNames;
 
-    private final Map<String, Set<String>> sequencerRunAttributes;
+    private final SortedMap<String, SortedSet<String>> sequencerRunAttributes;
     private final Collection<String> sequencerRunPlatformIDs;
 
     @Singular
@@ -56,25 +56,25 @@ public class DefaultFileProvenance implements FileProvenance {
     @Singular
     private final Collection<String> laneNumbers;
 
-    private final Map<String, Set<String>> laneAttributes;
+    private final SortedMap<String, SortedSet<String>> laneAttributes;
 
     //analysis info
     private final String workflowName;
     private final String workflowVersion;
     private final Integer workflowSWID;
-    private final Map<String, Set<String>> workflowAttributes;
+    private final SortedMap<String, SortedSet<String>> workflowAttributes;
     private final String workflowRunName;
     private final String workflowRunStatus;
     private final Integer workflowRunSWID;
-    private final Map<String, Set<String>> workflowRunAttributes;
-    private final Set<Integer> workflowRunInputFileSWIDs;
+    private final SortedMap<String, SortedSet<String>> workflowRunAttributes;
+    private final SortedSet<Integer> workflowRunInputFileSWIDs;
     private final String processingAlgorithm;
     private final Integer processingSWID;
-    private final Map<String, Set<String>> processingAttributes;
+    private final SortedMap<String, SortedSet<String>> processingAttributes;
     private final String processingStatus;
     private final String fileMetaType;
     private final Integer fileSWID;
-    private final Map<String, Set<String>> fileAttributes;
+    private final SortedMap<String, SortedSet<String>> fileAttributes;
     private final String filePath;
     private final String fileMd5sum;
     private final String fileSize;
@@ -93,7 +93,7 @@ public class DefaultFileProvenance implements FileProvenance {
 
     private final Collection<String> iusTags;
 
-    private final Map<String, Set<String>> iusAttributes;
+    private final SortedMap<String, SortedSet<String>> iusAttributes;
     
     public static class Builder {
         

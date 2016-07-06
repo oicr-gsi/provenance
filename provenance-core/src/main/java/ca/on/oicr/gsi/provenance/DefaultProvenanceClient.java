@@ -28,9 +28,9 @@ import org.joda.time.DateTime;
  */
 public class DefaultProvenanceClient implements ProvenanceClient {
 
-    private final HashMap<String, AnalysisProvenanceProvider> analysisProvenanceProviders;
-    private final HashMap<String, SampleProvenanceProvider> sampleProvenanceProviders;
-    private final HashMap<String, LaneProvenanceProvider> laneProvenanceProviders;
+    protected final HashMap<String, AnalysisProvenanceProvider> analysisProvenanceProviders;
+    protected final HashMap<String, SampleProvenanceProvider> sampleProvenanceProviders;
+    protected final HashMap<String, LaneProvenanceProvider> laneProvenanceProviders;
 
     public DefaultProvenanceClient() {
         analysisProvenanceProviders = new HashMap<>();
@@ -50,7 +50,7 @@ public class DefaultProvenanceClient implements ProvenanceClient {
         return sampleProvenanceProviders.put(provider, spp);
     }
 
-    public Map<String, Map<String, SampleProvenance>> getSampleProvenanceByProvider(Map<String, Set<String>> filters) {
+    private Map<String, Map<String, SampleProvenance>> getSampleProvenanceByProvider(Map<String, Set<String>> filters) {
         Map<String, Map<String, SampleProvenance>> spsByProvider = new HashMap<>();
         for (Entry<String, SampleProvenanceProvider> e : sampleProvenanceProviders.entrySet()) {
             String provider = e.getKey();
@@ -75,7 +75,7 @@ public class DefaultProvenanceClient implements ProvenanceClient {
         return spsByProvider;
     }
 
-    public Map<String, Map<String, LaneProvenance>> getLaneProvenanceByProvider(Map<String, Set<String>> filters) {
+    private Map<String, Map<String, LaneProvenance>> getLaneProvenanceByProvider(Map<String, Set<String>> filters) {
         Map<String, Map<String, LaneProvenance>> lpsByProvider = new HashMap<>();
         for (Entry<String, LaneProvenanceProvider> e : laneProvenanceProviders.entrySet()) {
             String provider = e.getKey();
@@ -100,7 +100,7 @@ public class DefaultProvenanceClient implements ProvenanceClient {
         return lpsByProvider;
     }
 
-    public Map<String, Collection<AnalysisProvenance>> getAnalysisProvenanceByProvider(Map<String, Set<String>> filters) {
+    private Map<String, Collection<AnalysisProvenance>> getAnalysisProvenanceByProvider(Map<String, Set<String>> filters) {
         Map<String, Collection<AnalysisProvenance>> apsByProvider = new HashMap<>();
         for (Entry<String, AnalysisProvenanceProvider> e : analysisProvenanceProviders.entrySet()) {
             String provider = e.getKey();

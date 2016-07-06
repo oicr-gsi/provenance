@@ -1,7 +1,7 @@
 package ca.on.oicr.gsi.provenance.model;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import org.joda.time.DateTime;
 
 /**
@@ -12,13 +12,13 @@ public interface LaneProvenance {
 
     public String getSequencerRunName();
 
-    public Map<String, Set<String>> getSequencerRunAttributes();
+    public SortedMap<String, SortedSet<String>> getSequencerRunAttributes();
 
     public String getSequencerRunPlatformModel();
 
     public String getLaneNumber();
 
-    public Map<String, Set<String>> getLaneAttributes();
+    public SortedMap<String, SortedSet<String>> getLaneAttributes();
     
     public Boolean getSkip();
 

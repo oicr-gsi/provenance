@@ -1,7 +1,7 @@
 package ca.on.oicr.gsi.provenance.model;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import org.joda.time.DateTime;
 
 /**
@@ -12,7 +12,7 @@ public interface SampleProvenance {
 
     public String getStudyTitle();
 
-    public Map<String, Set<String>> getStudyAttributes();
+    public SortedMap<String, SortedSet<String>> getStudyAttributes();
 
     public String getRootSampleName();
 
@@ -20,17 +20,17 @@ public interface SampleProvenance {
 
     public String getSampleName();
 
-    public Map<String, Set<String>> getSampleAttributes();
+    public SortedMap<String, SortedSet<String>> getSampleAttributes();
 
     public String getSequencerRunName();
 
-    public Map<String, Set<String>> getSequencerRunAttributes();
+    public SortedMap<String, SortedSet<String>> getSequencerRunAttributes();
 
     public String getSequencerRunPlatformModel();
 
     public String getLaneNumber();
 
-    public Map<String, Set<String>> getLaneAttributes();
+    public SortedMap<String, SortedSet<String>> getLaneAttributes();
 
     public String getIusTag();
 

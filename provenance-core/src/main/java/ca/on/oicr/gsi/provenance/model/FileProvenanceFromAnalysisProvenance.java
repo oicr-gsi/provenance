@@ -2,9 +2,10 @@ package ca.on.oicr.gsi.provenance.model;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -40,8 +41,8 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getStudyAttributes() {
-        return Collections.EMPTY_MAP;
+    public SortedMap<String, SortedSet<String>> getStudyAttributes() {
+        return MapUtils.EMPTY_SORTED_MAP;
     }
 
     @Override
@@ -50,8 +51,8 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getExperimentAttributes() {
-        return Collections.EMPTY_MAP;
+    public SortedMap<String, SortedSet<String>> getExperimentAttributes() {
+        return MapUtils.EMPTY_SORTED_MAP;
     }
 
     @Override
@@ -71,8 +72,8 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
 
     @Override
     @Deprecated
-    public Map<String, Set<String>> getParentSampleAttributes() {
-        return Collections.EMPTY_MAP;
+    public SortedMap<String, SortedSet<String>> getParentSampleAttributes() {
+        return MapUtils.EMPTY_SORTED_MAP;
     }
 
     @Override
@@ -91,8 +92,8 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getSampleAttributes() {
-        return Collections.EMPTY_MAP;
+    public SortedMap<String, SortedSet<String>> getSampleAttributes() {
+        return MapUtils.EMPTY_SORTED_MAP;
     }
 
     @Override
@@ -101,8 +102,8 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getSequencerRunAttributes() {
-        return Collections.EMPTY_MAP;
+    public SortedMap<String, SortedSet<String>> getSequencerRunAttributes() {
+        return MapUtils.EMPTY_SORTED_MAP;
 
     }
 
@@ -131,8 +132,8 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getLaneAttributes() {
-        return Collections.EMPTY_MAP;
+    public SortedMap<String, SortedSet<String>> getLaneAttributes() {
+        return MapUtils.EMPTY_SORTED_MAP;
     }
 
     @Override
@@ -152,7 +153,7 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getWorkflowAttributes() {
+    public SortedMap<String, SortedSet<String>> getWorkflowAttributes() {
         return analysisProvenance.getWorkflowAttributes();
     }
 
@@ -172,12 +173,12 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getWorkflowRunAttributes() {
+    public SortedMap<String, SortedSet<String>> getWorkflowRunAttributes() {
         return analysisProvenance.getWorkflowRunAttributes();
     }
 
     @Override
-    public Set<Integer> getWorkflowRunInputFileSWIDs() {
+    public SortedSet<Integer> getWorkflowRunInputFileSWIDs() {
         return analysisProvenance.getWorkflowRunInputFileIds();
     }
 
@@ -192,7 +193,7 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getProcessingAttributes() {
+    public SortedMap<String, SortedSet<String>> getProcessingAttributes() {
         return analysisProvenance.getProcessingAttributes();
     }
 
@@ -212,7 +213,7 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getFileAttributes() {
+    public SortedMap<String, SortedSet<String>> getFileAttributes() {
         return analysisProvenance.getFileAttributes();
     }
 
@@ -266,7 +267,7 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
 
     @Override
     public Collection<String> getIusSWIDs() {
-        Set<String> iusSWIDs = new HashSet<>();
+        SortedSet<String> iusSWIDs = new TreeSet<>();
         for (IusLimsKey iusKey : analysisProvenance.getIusLimsKeys()) {
             iusSWIDs.add(iusKey.getIusSWID().toString());
         }
@@ -279,7 +280,7 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     }
 
     @Override
-    public Map<String, Set<String>> getIusAttributes() {
+    public SortedMap<String, SortedSet<String>> getIusAttributes() {
         return analysisProvenance.getIusAttributes();
     }
 

@@ -1,10 +1,10 @@
 package ca.on.oicr.gsi.provenance.model;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
@@ -29,7 +29,7 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     public Collection<String> getStudyTitles() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getStudyTitle() != null) {
                 s.add(sp.getStudyTitle());
@@ -39,8 +39,8 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
     }
 
     @Override
-    public Map<String, Set<String>> getStudyAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getStudyAttributes() {
+        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getSampleAttributes() != null) {
                 attrs.putAll(sp.getStudyAttributes());
@@ -51,7 +51,7 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     public Collection<String> getExperimentNames() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             //s.add(sp.getExperimentName());
         }
@@ -59,8 +59,8 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
     }
 
     @Override
-    public Map<String, Set<String>> getExperimentAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getExperimentAttributes() {
+        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
         for (SampleProvenance sp : sampleProvenances) {
             //s.addAll(sp.getExperimentAttributes());
         }
@@ -69,7 +69,7 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     public Collection<String> getRootSampleNames() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getRootSampleName() != null) {
                 s.add(sp.getRootSampleName());
@@ -80,7 +80,7 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     public Collection<String> getParentSampleNames() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getParentSampleName() != null) {
                 s.add(sp.getParentSampleName());
@@ -91,7 +91,7 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     public Collection<String> getParentSampleOrganismIDs() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             //s.addAll(sp.getParentSampleOrganismIDs());
         }
@@ -100,8 +100,8 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     @Deprecated
-    public Map<String, Set<String>> getParentSampleAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getParentSampleAttributes() {
+        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getSampleAttributes() != null) {
                 attrs.putAll(sp.getSampleAttributes());
@@ -112,7 +112,7 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     public Collection<String> getSampleNames() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getSampleName() != null) {
                 s.add(sp.getSampleName());
@@ -123,7 +123,7 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     public Collection<String> getSampleOrganismIDs() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             //s.addAll(sp.getSampleOrganismIDs());
         }
@@ -132,7 +132,7 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     public Collection<String> getSampleOrganismCodes() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             //s.addAll(sp.getSampleOrganismCodes());
         }
@@ -140,8 +140,8 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
     }
 
     @Override
-    public Map<String, Set<String>> getSampleAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getSampleAttributes() {
+        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getSampleAttributes() != null) {
                 attrs.putAll(sp.getSampleAttributes());
@@ -152,7 +152,7 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     public Collection<String> getSequencerRunNames() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getSequencerRunName() != null) {
                 s.add(sp.getSequencerRunName());
@@ -162,8 +162,8 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
     }
 
     @Override
-    public Map<String, Set<String>> getSequencerRunAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getSequencerRunAttributes() {
+        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getSequencerRunAttributes() != null) {
                 attrs.putAll(sp.getSequencerRunAttributes());
@@ -174,7 +174,7 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     public Collection<String> getSequencerRunPlatformIDs() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             //s.addAll(sp.getSequencerRunPlatformIDs());
         }
@@ -183,7 +183,7 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     public Collection<String> getSequencerRunPlatformNames() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getSequencerRunPlatformModel() != null) {
                 s.add(sp.getSequencerRunPlatformModel());
@@ -194,7 +194,7 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     public Collection<String> getLaneNames() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getSequencerRunName() != null && sp.getLaneNumber() != null) {
                 s.add(sp.getSequencerRunName() + "_lane_" + sp.getLaneNumber());
@@ -205,7 +205,7 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     public Collection<String> getLaneNumbers() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getLaneNumber() != null) {
                 s.add(sp.getLaneNumber());
@@ -215,8 +215,8 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
     }
 
     @Override
-    public Map<String, Set<String>> getLaneAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getLaneAttributes() {
+        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getLaneAttributes() != null) {
                 attrs.putAll(sp.getLaneAttributes());
@@ -227,7 +227,7 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
 
     @Override
     public Collection<String> getIusTags() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getIusTag() != null) {
                 s.add(sp.getIusTag());

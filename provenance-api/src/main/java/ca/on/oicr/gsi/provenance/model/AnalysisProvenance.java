@@ -1,7 +1,8 @@
 package ca.on.oicr.gsi.provenance.model;
 
-import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import org.joda.time.DateTime;
 
 /**
@@ -16,7 +17,7 @@ public interface AnalysisProvenance {
 
     public Integer getWorkflowId();
 
-    public Map<String, Set<String>> getWorkflowAttributes();
+    public SortedMap<String, SortedSet<String>> getWorkflowAttributes();
 
     public String getWorkflowRunName();
 
@@ -24,15 +25,15 @@ public interface AnalysisProvenance {
 
     public Integer getWorkflowRunId();
 
-    public Map<String, Set<String>> getWorkflowRunAttributes();
+    public SortedMap<String, SortedSet<String>> getWorkflowRunAttributes();
 
-    public Set<Integer> getWorkflowRunInputFileIds();
+    public SortedSet<Integer> getWorkflowRunInputFileIds();
 
     public String getProcessingAlgorithm();
 
     public Integer getProcessingId();
 
-    public Map<String, Set<String>> getProcessingAttributes();
+    public SortedMap<String, SortedSet<String>> getProcessingAttributes();
 
     public String getProcessingStatus();
 
@@ -48,7 +49,7 @@ public interface AnalysisProvenance {
 
     public String getFileDescription();
 
-    public Map<String, Set<String>> getFileAttributes();
+    public SortedMap<String, SortedSet<String>> getFileAttributes();
 
     public Boolean getSkip();
 
@@ -56,6 +57,6 @@ public interface AnalysisProvenance {
 
     public Set<IusLimsKey> getIusLimsKeys();
 
-    public Map<String, Set<String>> getIusAttributes();
+    public SortedMap<String, SortedSet<String>> getIusAttributes();
 
 }

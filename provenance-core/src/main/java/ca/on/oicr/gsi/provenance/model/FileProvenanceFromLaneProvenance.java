@@ -2,11 +2,12 @@ package ca.on.oicr.gsi.provenance.model;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
+import org.apache.commons.collections4.MapUtils;
 
 /**
  *
@@ -34,8 +35,8 @@ public class FileProvenanceFromLaneProvenance extends FileProvenanceFromAnalysis
     }
 
     @Override
-    public Map<String, Set<String>> getStudyAttributes() {
-        return Collections.EMPTY_MAP;
+    public SortedMap<String, SortedSet<String>> getStudyAttributes() {
+        return MapUtils.EMPTY_SORTED_MAP;
     }
 
     @Override
@@ -44,8 +45,8 @@ public class FileProvenanceFromLaneProvenance extends FileProvenanceFromAnalysis
     }
 
     @Override
-    public Map<String, Set<String>> getExperimentAttributes() {
-        return Collections.EMPTY_MAP;
+    public SortedMap<String, SortedSet<String>> getExperimentAttributes() {
+        return MapUtils.EMPTY_SORTED_MAP;
     }
 
     @Override
@@ -65,8 +66,8 @@ public class FileProvenanceFromLaneProvenance extends FileProvenanceFromAnalysis
 
     @Override
     @Deprecated
-    public Map<String, Set<String>> getParentSampleAttributes() {
-        return Collections.EMPTY_MAP;
+    public SortedMap<String, SortedSet<String>> getParentSampleAttributes() {
+        return MapUtils.EMPTY_SORTED_MAP;
     }
 
     @Override
@@ -85,13 +86,13 @@ public class FileProvenanceFromLaneProvenance extends FileProvenanceFromAnalysis
     }
 
     @Override
-    public Map<String, Set<String>> getSampleAttributes() {
-        return Collections.EMPTY_MAP;
+    public SortedMap<String, SortedSet<String>> getSampleAttributes() {
+        return MapUtils.EMPTY_SORTED_MAP;
     }
 
     @Override
     public Collection<String> getSequencerRunNames() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (LaneProvenance lp : laneProvenances) {
             if (lp.getSequencerRunName() != null) {
                 s.add(lp.getSequencerRunName());
@@ -101,8 +102,8 @@ public class FileProvenanceFromLaneProvenance extends FileProvenanceFromAnalysis
     }
 
     @Override
-    public Map<String, Set<String>> getSequencerRunAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getSequencerRunAttributes() {
+        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
         for (LaneProvenance lp : laneProvenances) {
             if (lp.getSequencerRunAttributes() != null) {
                 attrs.putAll(lp.getSequencerRunAttributes());
@@ -113,7 +114,7 @@ public class FileProvenanceFromLaneProvenance extends FileProvenanceFromAnalysis
 
     @Override
     public Collection<String> getSequencerRunPlatformIDs() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (LaneProvenance lp : laneProvenances) {
             //s.addAll(lp.getSequencerRunPlatformIDs());
         }
@@ -122,7 +123,7 @@ public class FileProvenanceFromLaneProvenance extends FileProvenanceFromAnalysis
 
     @Override
     public Collection<String> getSequencerRunPlatformNames() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (LaneProvenance lp : laneProvenances) {
             if (lp.getSequencerRunPlatformModel() != null) {
                 s.add(lp.getSequencerRunPlatformModel());
@@ -133,7 +134,7 @@ public class FileProvenanceFromLaneProvenance extends FileProvenanceFromAnalysis
 
     @Override
     public Collection<String> getLaneNames() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (LaneProvenance lp : laneProvenances) {
             if (lp.getSequencerRunName() != null && lp.getLaneNumber() != null) {
                 s.add(lp.getSequencerRunName() + "_lane_" + lp.getLaneNumber());
@@ -144,7 +145,7 @@ public class FileProvenanceFromLaneProvenance extends FileProvenanceFromAnalysis
 
     @Override
     public Collection<String> getLaneNumbers() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
         for (LaneProvenance lp : laneProvenances) {
             if (lp.getLaneNumber() != null) {
                 s.add(lp.getLaneNumber());
@@ -154,8 +155,8 @@ public class FileProvenanceFromLaneProvenance extends FileProvenanceFromAnalysis
     }
 
     @Override
-    public Map<String, Set<String>> getLaneAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
+    public SortedMap<String, SortedSet<String>> getLaneAttributes() {
+        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
         for (LaneProvenance lp : laneProvenances) {
             if (lp.getLaneAttributes() != null) {
                 attrs.putAll(lp.getLaneAttributes());
@@ -166,7 +167,7 @@ public class FileProvenanceFromLaneProvenance extends FileProvenanceFromAnalysis
 
     @Override
     public Collection<String> getIusTags() {
-        Set<String> s = new TreeSet<>();
+        SortedSet<String> s = new TreeSet<>();
 
         //added for backwards compatibility
         if (s.isEmpty()) {
