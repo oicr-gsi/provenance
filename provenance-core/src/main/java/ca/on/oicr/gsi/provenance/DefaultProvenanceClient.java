@@ -2,6 +2,7 @@ package ca.on.oicr.gsi.provenance;
 
 import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenance;
+import ca.on.oicr.gsi.provenance.model.FileProvenance.Status;
 import ca.on.oicr.gsi.provenance.model.FileProvenanceFromAnalysisProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenanceFromLaneProvenance;
 import ca.on.oicr.gsi.provenance.model.IusLimsKey;
@@ -191,7 +192,7 @@ public class DefaultProvenanceClient implements ProvenanceClient {
             for (AnalysisProvenance ap : e.getValue()) {
                 List<FileProvenanceFromAnalysisProvenance> tmp = new ArrayList<>();
                 boolean skip = false;
-                String status = "OKAY";
+                Status status = Status.OKAY;
 
                 for (IusLimsKey ik : ap.getIusLimsKeys()) {
 
@@ -202,7 +203,7 @@ public class DefaultProvenanceClient implements ProvenanceClient {
                     String limsKeyVersion = null;
                     DateTime limsKeyLastModified = null;
                     if (limsKey == null) {
-                        status = "ERROR";
+                        status = Status.ERROR;
                     } else {
                         limsKeyId = limsKey.getId();
                         limsKeyProvider = limsKey.getProvider();
@@ -220,25 +221,25 @@ public class DefaultProvenanceClient implements ProvenanceClient {
                         lp = laneProvenanceByProvider.get(limsKeyProvider).get(limsKeyId);
                     }
                     if ((sp == null && lp == null) || (sp != null && lp != null)) {
-                        status = "ERROR";
+                        status = Status.ERROR;
                     }
 
                     //check that the lims key version and last modified matches provenance object's version and last modified
-                    if (status.equals("ERROR")) {
+                    if (status == Status.ERROR) {
                         //
                     } else if (sp != null) {
                         if (sp.getVersion() == null || !sp.getVersion().equals(limsKeyVersion)) {
-                            status = "ERROR";
+                            status = Status.ERROR;
                         }
                         if (sp.getLastModified() == null || !sp.getLastModified().equals(limsKeyLastModified)) {
-                            status = "ERROR";
+                            status = Status.ERROR;
                         }
                     } else if (lp != null) {
                         if (lp.getVersion() == null || !lp.getVersion().equals(limsKeyVersion)) {
-                            status = "ERROR";
+                            status = Status.ERROR;
                         }
                         if (lp.getLastModified() == null || !lp.getLastModified().equals(limsKeyLastModified)) {
-                            status = "ERROR";
+                            status = Status.ERROR;
                         }
                     } else {
                         //
@@ -292,7 +293,7 @@ public class DefaultProvenanceClient implements ProvenanceClient {
                         }
                     } else {
                         //catch all
-                        status = "ERROR";
+                        status = Status.ERROR;
                         b = new FileProvenanceFromAnalysisProvenance();
                         b.setAnalysisProvenance(ap);
                     }

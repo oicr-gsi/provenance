@@ -106,6 +106,6 @@ public interface FileProvenance {
     
     public Map<String, Set<String>> getIusAttributes();
     
-    public String getStatus();
+    public Status getStatus();
 
 }

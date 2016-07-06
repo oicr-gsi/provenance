@@ -82,7 +82,7 @@ public class DefaultFileProvenance implements FileProvenance {
     private final String skip;
 
     //record status
-    private final String status;
+    private final Status status;
     private final DateTime lastModified;
 
     @Singular

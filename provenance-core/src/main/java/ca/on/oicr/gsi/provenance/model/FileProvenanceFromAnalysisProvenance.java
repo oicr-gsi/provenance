@@ -20,7 +20,7 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
 
     protected boolean skip;
 
-    protected String status;
+    protected Status status;
 
     public void setAnalysisProvenance(AnalysisProvenance analysisProvenance) {
         this.analysisProvenance = analysisProvenance;
@@ -30,7 +30,7 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
         this.skip = skip;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -247,7 +247,7 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     }
 
     @Override
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
