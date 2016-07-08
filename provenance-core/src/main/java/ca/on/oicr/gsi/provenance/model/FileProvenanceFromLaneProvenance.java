@@ -40,16 +40,6 @@ public class FileProvenanceFromLaneProvenance extends FileProvenanceFromAnalysis
     }
 
     @Override
-    public Collection<String> getExperimentNames() {
-        return Collections.EMPTY_SET;
-    }
-
-    @Override
-    public SortedMap<String, SortedSet<String>> getExperimentAttributes() {
-        return MapUtils.EMPTY_SORTED_MAP;
-    }
-
-    @Override
     public Collection<String> getRootSampleNames() {
         return Collections.EMPTY_SET;
     }

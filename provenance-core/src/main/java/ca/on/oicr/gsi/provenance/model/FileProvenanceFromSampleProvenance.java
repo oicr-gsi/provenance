@@ -50,24 +50,6 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
     }
 
     @Override
-    public Collection<String> getExperimentNames() {
-        SortedSet<String> s = new TreeSet<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            //s.add(sp.getExperimentName());
-        }
-        return s;
-    }
-
-    @Override
-    public SortedMap<String, SortedSet<String>> getExperimentAttributes() {
-        SortedMap<String, SortedSet<String>> attrs = new TreeMap<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            //s.addAll(sp.getExperimentAttributes());
-        }
-        return attrs;
-    }
-
-    @Override
     public Collection<String> getRootSampleNames() {
         SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {

@@ -46,16 +46,6 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     }
 
     @Override
-    public Collection<String> getExperimentNames() {
-        return Collections.EMPTY_SET;
-    }
-
-    @Override
-    public SortedMap<String, SortedSet<String>> getExperimentAttributes() {
-        return MapUtils.EMPTY_SORTED_MAP;
-    }
-
-    @Override
     public Collection<String> getRootSampleNames() {
         return Collections.EMPTY_SET;
     }
@@ -289,8 +279,6 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
         return "FileProvenance{"
                 + "studyTitles=" + getStudyTitles() + ", "
                 + "studyAttributes=" + getStudyAttributes() + ", "
-                + "experimentNames=" + getExperimentNames() + ", "
-                + "experimentAttributes=" + getExperimentAttributes() + ", "
                 + "rootSampleNames=" + getRootSampleNames() + ", "
                 + "parentSampleNames=" + getParentSampleNames() + ", "
                 + "parentSampleOrganismIDs=" + getParentSampleOrganismIDs() + ", "

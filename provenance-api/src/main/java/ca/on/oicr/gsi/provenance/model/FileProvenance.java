@@ -20,10 +20,6 @@ public interface FileProvenance {
 
     public SortedMap<String, SortedSet<String>> getStudyAttributes();
 
-    public Collection<String> getExperimentNames();
-
-    public SortedMap<String, SortedSet<String>> getExperimentAttributes();
-
     public Collection<String> getRootSampleNames();
 
     public Collection<String> getParentSampleNames();

@@ -23,11 +23,6 @@ public class DefaultFileProvenance implements FileProvenance {
     private final SortedMap<String, SortedSet<String>> studyAttributes;
 
     @Singular
-    private final Collection<String> experimentNames;
-
-    private final SortedMap<String, SortedSet<String>> experimentAttributes;
-
-    @Singular
     private final Collection<String> rootSampleNames;
 
     @Singular
@@ -100,8 +95,6 @@ public class DefaultFileProvenance implements FileProvenance {
         public Builder copyFrom(FileProvenance fp) {
             studyTitles(fp.getStudyTitles());
             studyAttributes(fp.getStudyAttributes());
-            experimentNames(fp.getExperimentNames());
-            experimentAttributes(fp.getExperimentAttributes());
             rootSampleNames(fp.getRootSampleNames());
             parentSampleNames(fp.getParentSampleNames());
             parentSampleOrganismIDs(fp.getParentSampleOrganismIDs());

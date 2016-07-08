@@ -336,11 +336,6 @@ public class DefaultProvenanceClient implements ProvenanceClient {
                     continue;
                 }
             }
-            if (filters.containsKey(FileProvenanceParam.experiment.toString())) {
-                if (!CollectionUtils.containsAny(filters.get(FileProvenanceParam.experiment.toString()), f.getExperimentNames())) {
-                    continue;
-                }
-            }
             if (filters.containsKey(FileProvenanceParam.sample.toString())) {
                 if (!CollectionUtils.containsAny(filters.get(FileProvenanceParam.sample.toString()), f.getSampleNames())) {
                     continue;
