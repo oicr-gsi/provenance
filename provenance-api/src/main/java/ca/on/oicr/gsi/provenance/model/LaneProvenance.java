@@ -8,7 +8,7 @@ import org.joda.time.DateTime;
  *
  * @author mlaszloffy
  */
-public interface LaneProvenance {
+public interface LaneProvenance extends LimsProvenance {
 
     public String getSequencerRunName();
 
@@ -24,8 +24,6 @@ public interface LaneProvenance {
 
     public String getLaneProvenanceId();
 
-    public String getVersion();
-
-    public DateTime getLastModified();
+    public DateTime getCreatedDate();
 
 }

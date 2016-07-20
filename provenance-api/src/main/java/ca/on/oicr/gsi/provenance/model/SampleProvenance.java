@@ -8,7 +8,7 @@ import org.joda.time.DateTime;
  *
  * @author mlaszloffy
  */
-public interface SampleProvenance {
+public interface SampleProvenance extends LimsProvenance {
 
     public String getStudyTitle();
 
@@ -38,8 +38,6 @@ public interface SampleProvenance {
 
     public String getSampleProvenanceId();
 
-    public String getVersion();
-
-    public DateTime getLastModified();
+    public DateTime getCreatedDate();
 
 }
