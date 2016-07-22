@@ -212,7 +212,12 @@ public class FileProvenanceFromSampleProvenance extends FileProvenanceFromAnalys
         SortedSet<String> s = new TreeSet<>();
         for (SampleProvenance sp : sampleProvenances) {
             if (sp.getIusTag() != null) {
-                s.add(sp.getIusTag());
+                if (sp.getIusTag().isEmpty()) {
+                    //added for backwards compatibility
+                    s.add("NoIndex");
+                } else {
+                    s.add(sp.getIusTag());
+                }
             }
         }
 
