@@ -26,7 +26,7 @@ import org.joda.time.DateTime;
  *
  * @author mlaszloffy
  */
-public class DefaultProvenanceClient implements ProvenanceClient {
+public class DefaultProvenanceClient implements ExtendedProvenanceClient {
 
     protected final HashMap<String, AnalysisProvenanceProvider> analysisProvenanceProviders;
     protected final HashMap<String, SampleProvenanceProvider> sampleProvenanceProviders;
@@ -50,8 +50,9 @@ public class DefaultProvenanceClient implements ProvenanceClient {
         return sampleProvenanceProviders.put(provider, spp);
     }
 
-    private Map<String, Map<String, SampleProvenance>> getSampleProvenanceByProvider(Map<String, Set<String>> filters) {
-        Map<String, Map<String, SampleProvenance>> spsByProvider = new HashMap<>();
+    @Override
+    public Map<String, Collection<SampleProvenance>> getSampleProvenanceByProvider(Map<String, Set<String>> filters) {
+        Map<String, Collection<SampleProvenance>> spsByProvider = new HashMap<>();
         for (Entry<String, SampleProvenanceProvider> e : sampleProvenanceProviders.entrySet()) {
             String provider = e.getKey();
             SampleProvenanceProvider spp = e.getValue();
@@ -63,20 +64,33 @@ public class DefaultProvenanceClient implements ProvenanceClient {
                 sps = spp.getSampleProvenance(filters);
             }
 
+            spsByProvider.put(provider, sps);
+        }
+        return spsByProvider;
+    }
+
+    @Override
+    public Map<String, Map<String, SampleProvenance>> getSampleProvenanceByProviderAndId(Map<String, Set<String>> filters) {
+        Map<String, Map<String, SampleProvenance>> spsByProviderAndId = new HashMap<>();
+
+        for (Entry<String, Collection<SampleProvenance>> e : getSampleProvenanceByProvider(filters).entrySet()) {
+            String provider = e.getKey();
             Map<String, SampleProvenance> spsById = new HashMap<>();
-            for (SampleProvenance sp : sps) {
+            for (SampleProvenance sp : e.getValue()) {
                 if (spsById.put(sp.getSampleProvenanceId(), sp) != null) {
                     throw new RuntimeException("Duplicate sample provenance ID = [" + sp.getSampleProvenanceId() + "] from provider = [" + provider + "]");
                 }
             }
 
-            spsByProvider.put(provider, spsById);
+            spsByProviderAndId.put(provider, spsById);
         }
-        return spsByProvider;
+
+        return spsByProviderAndId;
     }
 
-    private Map<String, Map<String, LaneProvenance>> getLaneProvenanceByProvider(Map<String, Set<String>> filters) {
-        Map<String, Map<String, LaneProvenance>> lpsByProvider = new HashMap<>();
+    @Override
+    public Map<String, Collection<LaneProvenance>> getLaneProvenanceByProvider(Map<String, Set<String>> filters) {
+        Map<String, Collection<LaneProvenance>> lpsByProvider = new HashMap<>();
         for (Entry<String, LaneProvenanceProvider> e : laneProvenanceProviders.entrySet()) {
             String provider = e.getKey();
             LaneProvenanceProvider lpp = e.getValue();
@@ -88,19 +102,32 @@ public class DefaultProvenanceClient implements ProvenanceClient {
                 lps = lpp.getLaneProvenance(filters);
             }
 
+            lpsByProvider.put(provider, lps);
+        }
+
+        return lpsByProvider;
+    }
+
+    @Override
+    public Map<String, Map<String, LaneProvenance>> getLaneProvenanceByProviderAndId(Map<String, Set<String>> filters) {
+        Map<String, Map<String, LaneProvenance>> lpsByProviderAndId = new HashMap<>();
+        for (Entry<String, Collection<LaneProvenance>> e : getLaneProvenanceByProvider(filters).entrySet()) {
+            String provider = e.getKey();
+
             Map<String, LaneProvenance> lpsById = new HashMap<>();
-            for (LaneProvenance lp : lps) {
+            for (LaneProvenance lp : e.getValue()) {
                 if (lpsById.put(lp.getLaneProvenanceId(), lp) != null) {
                     throw new RuntimeException("Duplicate lane provenance ID = [" + lp.getLaneProvenanceId() + "] from provider = [" + provider + "]");
                 }
             }
 
-            lpsByProvider.put(provider, lpsById);
+            lpsByProviderAndId.put(provider, lpsById);
         }
-        return lpsByProvider;
+        return lpsByProviderAndId;
     }
 
-    private Map<String, Collection<AnalysisProvenance>> getAnalysisProvenanceByProvider(Map<String, Set<String>> filters) {
+    @Override
+    public Map<String, Collection<AnalysisProvenance>> getAnalysisProvenanceByProvider(Map<String, Set<String>> filters) {
         Map<String, Collection<AnalysisProvenance>> apsByProvider = new HashMap<>();
         for (Entry<String, AnalysisProvenanceProvider> e : analysisProvenanceProviders.entrySet()) {
             String provider = e.getKey();
@@ -121,7 +148,7 @@ public class DefaultProvenanceClient implements ProvenanceClient {
     @Override
     public Collection<SampleProvenance> getSampleProvenance() {
         List<SampleProvenance> sps = new ArrayList<>();
-        for (Map<String, SampleProvenance> e : getSampleProvenanceByProvider(null).values()) {
+        for (Map<String, SampleProvenance> e : getSampleProvenanceByProviderAndId(null).values()) {
             sps.addAll(e.values());
         }
         return sps;
@@ -130,7 +157,7 @@ public class DefaultProvenanceClient implements ProvenanceClient {
     @Override
     public Collection<SampleProvenance> getSampleProvenance(Map<String, Set<String>> filters) {
         List<SampleProvenance> sps = new ArrayList<>();
-        for (Map<String, SampleProvenance> e : getSampleProvenanceByProvider(filters).values()) {
+        for (Map<String, SampleProvenance> e : getSampleProvenanceByProviderAndId(filters).values()) {
             sps.addAll(e.values());
         }
         return sps;
@@ -139,7 +166,7 @@ public class DefaultProvenanceClient implements ProvenanceClient {
     @Override
     public Collection<LaneProvenance> getLaneProvenance() {
         List<LaneProvenance> lps = new ArrayList<>();
-        for (Map<String, LaneProvenance> e : getLaneProvenanceByProvider(null).values()) {
+        for (Map<String, LaneProvenance> e : getLaneProvenanceByProviderAndId(null).values()) {
             lps.addAll(e.values());
         }
         return lps;
@@ -148,7 +175,7 @@ public class DefaultProvenanceClient implements ProvenanceClient {
     @Override
     public Collection<LaneProvenance> getLaneProvenance(Map<String, Set<String>> filters) {
         List<LaneProvenance> lps = new ArrayList<>();
-        for (Map<String, LaneProvenance> e : getLaneProvenanceByProvider(filters).values()) {
+        for (Map<String, LaneProvenance> e : getLaneProvenanceByProviderAndId(filters).values()) {
             lps.addAll(e.values());
         }
         return lps;
@@ -173,8 +200,8 @@ public class DefaultProvenanceClient implements ProvenanceClient {
     @Override
     public Collection<FileProvenance> getFileProvenance() {
         return getFileProvenance(
-                getSampleProvenanceByProvider(Collections.EMPTY_MAP),
-                getLaneProvenanceByProvider(Collections.EMPTY_MAP),
+                getSampleProvenanceByProviderAndId(Collections.EMPTY_MAP),
+                getLaneProvenanceByProviderAndId(Collections.EMPTY_MAP),
                 getAnalysisProvenanceByProvider(Collections.EMPTY_MAP)
         );
     }
