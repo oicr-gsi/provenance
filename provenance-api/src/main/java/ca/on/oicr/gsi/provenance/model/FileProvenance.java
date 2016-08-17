@@ -1,8 +1,9 @@
 package ca.on.oicr.gsi.provenance.model;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import org.joda.time.DateTime;
 
 /**
  *
@@ -17,11 +18,7 @@ public interface FileProvenance {
 
     public Collection<String> getStudyTitles();
 
-    public Map<String, Set<String>> getStudyAttributes();
-
-    public Collection<String> getExperimentNames();
-
-    public Map<String, Set<String>> getExperimentAttributes();
+    public SortedMap<String, SortedSet<String>> getStudyAttributes();
 
     public Collection<String> getRootSampleNames();
 
@@ -29,7 +26,7 @@ public interface FileProvenance {
 
     public Collection<String> getParentSampleOrganismIDs();
 
-    public Map<String, Set<String>> getParentSampleAttributes();
+    public SortedMap<String, SortedSet<String>> getParentSampleAttributes();
 
     public Collection<String> getSampleNames();
 
@@ -37,11 +34,11 @@ public interface FileProvenance {
 
     public Collection<String> getSampleOrganismCodes();
 
-    public Map<String, Set<String>> getSampleAttributes();
+    public SortedMap<String, SortedSet<String>> getSampleAttributes();
 
     public Collection<String> getSequencerRunNames();
 
-    public Map<String, Set<String>> getSequencerRunAttributes();
+    public SortedMap<String, SortedSet<String>> getSequencerRunAttributes();
 
     public Collection<String> getSequencerRunPlatformIDs();
 
@@ -51,7 +48,7 @@ public interface FileProvenance {
 
     public Collection<String> getLaneNumbers();
 
-    public Map<String, Set<String>> getLaneAttributes();
+    public SortedMap<String, SortedSet<String>> getLaneAttributes();
 
     public String getWorkflowName();
 
@@ -59,7 +56,7 @@ public interface FileProvenance {
 
     public Integer getWorkflowSWID();
 
-    public Map<String, Set<String>> getWorkflowAttributes();
+    public SortedMap<String, SortedSet<String>> getWorkflowAttributes();
 
     public String getWorkflowRunName();
 
@@ -67,15 +64,15 @@ public interface FileProvenance {
 
     public Integer getWorkflowRunSWID();
 
-    public Map<String, Set<String>> getWorkflowRunAttributes();
+    public SortedMap<String, SortedSet<String>> getWorkflowRunAttributes();
 
-    public Set<Integer> getWorkflowRunInputFileSWIDs();
+    public SortedSet<Integer> getWorkflowRunInputFileSWIDs();
 
     public String getProcessingAlgorithm();
 
     public Integer getProcessingSWID();
 
-    public Map<String, Set<String>> getProcessingAttributes();
+    public SortedMap<String, SortedSet<String>> getProcessingAttributes();
 
     public String getProcessingStatus();
 
@@ -83,7 +80,7 @@ public interface FileProvenance {
 
     public Integer getFileSWID();
 
-    public Map<String, Set<String>> getFileAttributes();
+    public SortedMap<String, SortedSet<String>> getFileAttributes();
 
     public String getFilePath();
 
@@ -95,12 +92,16 @@ public interface FileProvenance {
 
     public String getSkip();
 
-    public String getLastModified();
+    public DateTime getLastModified();
 
     public Collection<IusLimsKey> getIusLimsKeys();
 
     public Collection<String> getIusSWIDs();
-    
-    public String getStatus();
+
+    public Collection<String> getIusTags();
+
+    public SortedMap<String, SortedSet<String>> getIusAttributes();
+
+    public Status getStatus();
 
 }

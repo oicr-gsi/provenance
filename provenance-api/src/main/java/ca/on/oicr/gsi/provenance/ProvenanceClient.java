@@ -2,6 +2,7 @@ package ca.on.oicr.gsi.provenance;
 
 import ca.on.oicr.gsi.provenance.model.SampleProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenance;
+import ca.on.oicr.gsi.provenance.model.LaneProvenance;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -19,5 +20,9 @@ public interface ProvenanceClient {
     public Collection<SampleProvenance> getSampleProvenance();
 
     public Collection<SampleProvenance> getSampleProvenance(Map<String, Set<String>> filters);
+
+    public Collection<LaneProvenance> getLaneProvenance();
+
+    public Collection<LaneProvenance> getLaneProvenance(Map<String, Set<String>> filters);
 
 }

@@ -1,419 +1,138 @@
 package ca.on.oicr.gsi.provenance.model;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import lombok.Builder;
 import lombok.Singular;
-import org.apache.commons.lang3.ObjectUtils;
+import lombok.Value;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 /**
  *
  * @author mlaszloffy
  */
-@Builder
+@Builder(builderClassName = "Builder")
+@Value
 public class DefaultFileProvenance implements FileProvenance {
 
+    //sample info
     @Singular
-    private final Collection<SampleProvenance> sampleProvenances;
+    private final Collection<String> studyTitles;
 
-    private final AnalysisProvenance analysisProvenance;
+    private final SortedMap<String, SortedSet<String>> studyAttributes;
 
-    private boolean skip;
+    @Singular
+    private final Collection<String> rootSampleNames;
 
-    private final String status;
+    @Singular
+    private final Collection<String> parentSampleNames;
+    private final Collection<String> parentSampleOrganismIDs;
+    private final SortedMap<String, SortedSet<String>> parentSampleAttributes;
 
-    @Override
-    public Collection<String> getStudyTitles() {
-        Set<String> s = new TreeSet<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            if (sp.getStudyTitle() != null) {
-                s.add(sp.getStudyTitle());
-            }
+    @Singular
+    private final Collection<String> sampleNames;
+    private final Collection<String> sampleOrganismIDs;
+
+    @Singular
+    private final Collection<String> sampleOrganismCodes;
+    private final SortedMap<String, SortedSet<String>> sampleAttributes;
+
+    @Singular
+    private final Collection<String> sequencerRunNames;
+
+    private final SortedMap<String, SortedSet<String>> sequencerRunAttributes;
+    private final Collection<String> sequencerRunPlatformIDs;
+
+    @Singular
+    private final Collection<String> sequencerRunPlatformNames;
+    private final Collection<String> laneNames;
+
+    @Singular
+    private final Collection<String> laneNumbers;
+
+    private final SortedMap<String, SortedSet<String>> laneAttributes;
+
+    //analysis info
+    private final String workflowName;
+    private final String workflowVersion;
+    private final Integer workflowSWID;
+    private final SortedMap<String, SortedSet<String>> workflowAttributes;
+    private final String workflowRunName;
+    private final String workflowRunStatus;
+    private final Integer workflowRunSWID;
+    private final SortedMap<String, SortedSet<String>> workflowRunAttributes;
+    private final SortedSet<Integer> workflowRunInputFileSWIDs;
+    private final String processingAlgorithm;
+    private final Integer processingSWID;
+    private final SortedMap<String, SortedSet<String>> processingAttributes;
+    private final String processingStatus;
+    private final String fileMetaType;
+    private final Integer fileSWID;
+    private final SortedMap<String, SortedSet<String>> fileAttributes;
+    private final String filePath;
+    private final String fileMd5sum;
+    private final String fileSize;
+    private final String fileDescription;
+    private final String skip;
+
+    //record status
+    private final Status status;
+    private final DateTime lastModified;
+
+    @Singular
+    private final Collection<IusLimsKey> iusLimsKeys;
+
+    @Singular
+    private final Collection<String> iusSWIDs;
+
+    private final Collection<String> iusTags;
+
+    private final SortedMap<String, SortedSet<String>> iusAttributes;
+    
+    public static class Builder {
+        
+        public Builder copyFrom(FileProvenance fp) {
+            studyTitles(fp.getStudyTitles());
+            studyAttributes(fp.getStudyAttributes());
+            rootSampleNames(fp.getRootSampleNames());
+            parentSampleNames(fp.getParentSampleNames());
+            parentSampleOrganismIDs(fp.getParentSampleOrganismIDs());
+            parentSampleAttributes(fp.getParentSampleAttributes());
+            sampleNames(fp.getSampleNames());
+            sampleOrganismIDs(fp.getSampleOrganismIDs());
+            sampleOrganismCodes(fp.getSampleOrganismCodes());
+            sampleAttributes(fp.getSampleAttributes());
+            sequencerRunNames(fp.getSequencerRunNames());
+            sequencerRunAttributes(fp.getSequencerRunAttributes());
+            sequencerRunPlatformIDs(fp.getSequencerRunPlatformIDs());
+            sequencerRunPlatformNames(fp.getSequencerRunPlatformNames());
+            laneNames(fp.getLaneNames());
+            laneNumbers(fp.getLaneNumbers());
+            laneAttributes(fp.getLaneAttributes());
+            workflowName(fp.getWorkflowName());
+            workflowVersion(fp.getWorkflowVersion());
+            workflowSWID(fp.getWorkflowSWID());
+            workflowAttributes(fp.getWorkflowAttributes());
+            workflowRunName(fp.getWorkflowRunName());
+            workflowRunStatus(fp.getWorkflowRunStatus());
+            workflowRunSWID(fp.getWorkflowSWID());
+            workflowRunAttributes(fp.getWorkflowRunAttributes());
+            workflowRunInputFileSWIDs(fp.getWorkflowRunInputFileSWIDs());
+            processingAlgorithm(fp.getProcessingAlgorithm());
+            processingSWID(fp.getProcessingSWID());
+            processingAttributes(fp.getProcessingAttributes());
+            processingStatus(fp.getProcessingStatus());
+            fileMetaType(fp.getFileMetaType());
+            fileSWID(fp.getFileSWID());
+            fileAttributes(fp.getFileAttributes());
+            filePath(fp.getFilePath());
+            fileMd5sum(fp.getFileMd5sum());
+            fileDescription(fp.getFileDescription());
+            skip(fp.getSkip());
+            
+            return this;
         }
-        return s;
+        
     }
-
-    @Override
-    public Map<String, Set<String>> getStudyAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            if (sp.getSampleAttributes() != null) {
-                attrs.putAll(sp.getStudyAttributes());
-            }
-        }
-        return attrs;
-    }
-
-    @Override
-    public Collection<String> getExperimentNames() {
-        Set<String> s = new TreeSet<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            //s.add(sp.getExperimentName());
-        }
-        return s;
-    }
-
-    @Override
-    public Map<String, Set<String>> getExperimentAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            //s.addAll(sp.getExperimentAttributes());
-        }
-        return attrs;
-    }
-
-    @Override
-    public Collection<String> getRootSampleNames() {
-        Set<String> s = new TreeSet<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            if (sp.getRootSampleName() != null) {
-                s.add(sp.getRootSampleName());
-            }
-        }
-        return s;
-    }
-
-    @Override
-    public Collection<String> getParentSampleNames() {
-        Set<String> s = new TreeSet<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            if (sp.getParentSampleName() != null) {
-                s.add(sp.getParentSampleName());
-            }
-        }
-        return s;
-    }
-
-    @Override
-    public Collection<String> getParentSampleOrganismIDs() {
-        Set<String> s = new TreeSet<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            //s.addAll(sp.getParentSampleOrganismIDs());
-        }
-        return s;
-    }
-
-    @Override
-    @Deprecated
-    public Map<String, Set<String>> getParentSampleAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            if (sp.getSampleAttributes() != null) {
-                attrs.putAll(sp.getSampleAttributes());
-            }
-        }
-        return attrs;
-    }
-
-    @Override
-    public Collection<String> getSampleNames() {
-        Set<String> s = new TreeSet<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            if (sp.getSampleName() != null) {
-                s.add(sp.getSampleName());
-            }
-        }
-        return s;
-    }
-
-    @Override
-    public Collection<String> getSampleOrganismIDs() {
-        Set<String> s = new TreeSet<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            //s.addAll(sp.getSampleOrganismIDs());
-        }
-        return s;
-    }
-
-    @Override
-    public Collection<String> getSampleOrganismCodes() {
-        Set<String> s = new TreeSet<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            //s.addAll(sp.getSampleOrganismCodes());
-        }
-        return s;
-    }
-
-    @Override
-    public Map<String, Set<String>> getSampleAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            if (sp.getSampleAttributes() != null) {
-                attrs.putAll(sp.getSampleAttributes());
-            }
-        }
-        return attrs;
-    }
-
-    @Override
-    public Collection<String> getSequencerRunNames() {
-        Set<String> s = new TreeSet<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            if (sp.getSequencerRunName() != null) {
-                s.add(sp.getSequencerRunName());
-            }
-        }
-        return s;
-    }
-
-    @Override
-    public Map<String, Set<String>> getSequencerRunAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            if (sp.getSampleAttributes() != null) {
-                attrs.putAll(sp.getSequencerRunAttributes());
-            }
-        }
-        return attrs;
-    }
-
-    @Override
-    public Collection<String> getSequencerRunPlatformIDs() {
-        Set<String> s = new TreeSet<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            //s.addAll(sp.getSequencerRunPlatformIDs());
-        }
-        return s;
-    }
-
-    @Override
-    public Collection<String> getSequencerRunPlatformNames() {
-        Set<String> s = new TreeSet<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            if (sp.getSequencerRunPlatformModel() != null) {
-                s.add(sp.getSequencerRunPlatformModel());
-            }
-        }
-        return s;
-    }
-
-    @Override
-    public Collection<String> getLaneNames() {
-        Set<String> s = new TreeSet<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            //s.addAll(sp.getLaneNames());
-        }
-        return s;
-    }
-
-    @Override
-    public Collection<String> getLaneNumbers() {
-        Set<String> s = new TreeSet<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            if (sp.getLaneNumber() != null) {
-                s.add(sp.getLaneNumber());
-            }
-        }
-        return s;
-    }
-
-    @Override
-    public Map<String, Set<String>> getLaneAttributes() {
-        Map<String, Set<String>> attrs = new HashMap<>();
-        for (SampleProvenance sp : sampleProvenances) {
-            if (sp.getLaneAttributes() != null) {
-                attrs.putAll(sp.getLaneAttributes());
-            }
-        }
-        return attrs;
-    }
-
-    @Override
-    public String getWorkflowName() {
-        return analysisProvenance.getWorkflowName();
-
-    }
-
-    @Override
-    public String getWorkflowVersion() {
-        return analysisProvenance.getWorkflowVersion();
-    }
-
-    @Override
-    public Integer getWorkflowSWID() {
-        return analysisProvenance.getWorkflowId();
-    }
-
-    @Override
-    public Map<String, Set<String>> getWorkflowAttributes() {
-        return analysisProvenance.getWorkflowAttributes();
-    }
-
-    @Override
-    public String getWorkflowRunName() {
-        return analysisProvenance.getWorkflowRunName();
-    }
-
-    @Override
-    public String getWorkflowRunStatus() {
-        return analysisProvenance.getWorkflowRunStatus();
-    }
-
-    @Override
-    public Integer getWorkflowRunSWID() {
-        return analysisProvenance.getWorkflowRunId();
-    }
-
-    @Override
-    public Map<String, Set<String>> getWorkflowRunAttributes() {
-        return analysisProvenance.getWorkflowRunAttributes();
-    }
-
-    @Override
-    public Set<Integer> getWorkflowRunInputFileSWIDs() {
-        return analysisProvenance.getWorkflowRunInputFileIds();
-    }
-
-    @Override
-    public String getProcessingAlgorithm() {
-        return analysisProvenance.getProcessingAlgorithm();
-    }
-
-    @Override
-    public Integer getProcessingSWID() {
-        return analysisProvenance.getProcessingId();
-    }
-
-    @Override
-    public Map<String, Set<String>> getProcessingAttributes() {
-        return analysisProvenance.getProcessingAttributes();
-    }
-
-    @Override
-    public String getProcessingStatus() {
-        return analysisProvenance.getProcessingStatus();
-    }
-
-    @Override
-    public String getFileMetaType() {
-        return analysisProvenance.getFileMetaType();
-    }
-
-    @Override
-    public Integer getFileSWID() {
-        return analysisProvenance.getFileId();
-    }
-
-    @Override
-    public Map<String, Set<String>> getFileAttributes() {
-        return analysisProvenance.getFileAttributes();
-    }
-
-    @Override
-    public String getFilePath() {
-        return analysisProvenance.getFilePath();
-    }
-
-    @Override
-    public String getFileMd5sum() {
-        return analysisProvenance.getFileMd5sum();
-    }
-
-    @Override
-    public String getFileSize() {
-        return analysisProvenance.getFileSize();
-    }
-
-    @Override
-    public String getFileDescription() {
-        return analysisProvenance.getFileDescription();
-    }
-
-    @Override
-    public String getSkip() {
-        return Boolean.toString(skip);
-    }
-
-    @Override
-    public Collection<IusLimsKey> getIusLimsKeys() {
-        return analysisProvenance.getIusLimsKeys();
-    }
-
-    @Override
-    public String getStatus() {
-        return status;
-    }
-
-    @Override
-    public String getLastModified() {
-        DateTime lastModified = null;
-
-        for (SampleProvenance sampleProvenance : sampleProvenances) {
-            lastModified = ObjectUtils.max(lastModified, sampleProvenance.getLastModified());
-        }
-
-        lastModified = ObjectUtils.max(lastModified, analysisProvenance.getLastModified());
-
-        if (lastModified == null) {
-            return null;
-        } else {
-            return lastModified.toDateTime(DateTimeZone.UTC).toString();
-        }
-    }
-
-    @Override
-    public Collection<String> getIusSWIDs() {
-        Set<String> iusSWIDs = new HashSet<>();
-        for (IusLimsKey iusKey : analysisProvenance.getIusLimsKeys()) {
-            iusSWIDs.add(iusKey.getIusSWID().toString());
-        }
-        return iusSWIDs;
-    }
-
-    @Override
-    public String toString() {
-        return "FileProvenance{"
-                + "studyTitles=" + getStudyTitles() + ", "
-                + "studyAttributes=" + getStudyAttributes() + ", "
-                + "experimentNames=" + getExperimentNames() + ", "
-                + "experimentAttributes=" + getExperimentAttributes() + ", "
-                + "rootSampleNames=" + getRootSampleNames() + ", "
-                + "parentSampleNames=" + getParentSampleNames() + ", "
-                + "parentSampleOrganismIDs=" + getParentSampleOrganismIDs() + ", "
-                + "parentSampleAttributes=" + getParentSampleAttributes() + ", "
-                + "sampleNames=" + getSampleNames() + ", "
-                + "sampleOrganismIDs=" + getSampleOrganismIDs() + ", "
-                + "sampleOrganismCodes=" + getSampleOrganismCodes() + ", "
-                + "sampleAttributes=" + getSampleAttributes() + ", "
-                + "sequencerRunNames=" + getSequencerRunNames() + ", "
-                + "sequencerRunAttributes=" + getSequencerRunAttributes() + ", "
-                + "sequencerRunPlatformIDs=" + getSequencerRunPlatformIDs() + ", "
-                + "sequencerRunPlatformNames=" + getSequencerRunPlatformNames() + ", "
-                + "laneNames=" + getLaneNames() + ", "
-                + "laneNumbers=" + getLaneNumbers() + ", "
-                + "laneAttributes=" + getLaneAttributes() + ", "
-                + "workflowName=" + getWorkflowName() + ", "
-                + "workflowVersion=" + getWorkflowVersion() + ", "
-                + "workflowSWID=" + getWorkflowSWID() + ", "
-                + "workflowAttributes=" + getWorkflowAttributes() + ", "
-                + "workflowRunName=" + getWorkflowRunName() + ", "
-                + "workflowRunStatus=" + getWorkflowRunStatus() + ", "
-                + "workflowRunSWID=" + getWorkflowRunSWID() + ", "
-                + "workflowRunAttributes=" + getWorkflowRunAttributes() + ", "
-                + "workflowRunInputFileSWIDs=" + getWorkflowRunInputFileSWIDs() + ", "
-                + "processingAlgorithm=" + getProcessingAlgorithm() + ", "
-                + "processingSWID=" + getProcessingSWID() + ", "
-                + "processingAttributes=" + getProcessingAttributes() + ", "
-                + "processingStatus=" + getProcessingStatus() + ", "
-                + "fileMetaType=" + getFileMetaType() + ", "
-                + "fileSWID=" + getFileSWID() + ", "
-                + "fileAttributes=" + getFileAttributes() + ", "
-                + "filePath=" + getFilePath() + ", "
-                + "fileMd5sum=" + getFileMd5sum() + ", "
-                + "fileSize=" + getFileSize() + ", "
-                + "fileDescription=" + getFileDescription() + ", "
-                + "skip=" + getSkip() + ", "
-                + "lastModified=" + getLastModified() + ", "
-                + "iusLimsKeys=" + getIusLimsKeys() + ", "
-                + "iusSWIDs=" + getIusSWIDs() + ", "
-                + "status=" + getStatus()
-                + '}';
-    }
-
 }
