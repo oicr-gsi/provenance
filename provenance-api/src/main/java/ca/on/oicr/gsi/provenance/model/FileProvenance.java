@@ -104,4 +104,6 @@ public interface FileProvenance {
 
     public Status getStatus();
 
+    public String getStatusReason();
+
 }

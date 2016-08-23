@@ -22,6 +22,7 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     protected boolean skip;
 
     protected Status status;
+    protected String statusReason;
 
     public void setAnalysisProvenance(AnalysisProvenance analysisProvenance) {
         this.analysisProvenance = analysisProvenance;
@@ -33,6 +34,10 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public void setStatusReason(String statusReason) {
+        this.statusReason = statusReason;
     }
 
     @Override
@@ -240,6 +245,11 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     @Override
     public Status getStatus() {
         return status;
+    }
+
+    @Override
+    public String getStatusReason() {
+        return statusReason;
     }
 
     @Override

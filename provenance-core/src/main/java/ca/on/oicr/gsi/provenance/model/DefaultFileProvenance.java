@@ -78,6 +78,7 @@ public class DefaultFileProvenance implements FileProvenance {
 
     //record status
     private final Status status;
+    private final String statusReason;
     private final DateTime lastModified;
 
     @Singular

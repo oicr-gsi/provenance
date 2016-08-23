@@ -11,6 +11,7 @@ import ca.on.oicr.gsi.provenance.model.SampleProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenanceFromSampleProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenanceParam;
 import ca.on.oicr.gsi.provenance.model.LaneProvenance;
+import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -218,8 +219,9 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
 
             for (AnalysisProvenance ap : e.getValue()) {
                 List<FileProvenanceFromAnalysisProvenance> tmp = new ArrayList<>();
-                boolean skip = false;
+                boolean isSkipped = false;
                 Status status = Status.OKAY;
+                List<String> statusReasons = new ArrayList<>();
 
                 for (IusLimsKey ik : ap.getIusLimsKeys()) {
 
@@ -231,6 +233,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                     DateTime limsKeyLastModified = null;
                     if (limsKey == null) {
                         status = Status.ERROR;
+                        statusReasons.add("Analysis provenance does not have a LimsKey reference");
                     } else {
                         limsKeyId = limsKey.getId();
                         limsKeyProvider = limsKey.getProvider();
@@ -247,95 +250,95 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                     if (laneProvenanceByProvider.containsKey(limsKeyProvider)) {
                         lp = laneProvenanceByProvider.get(limsKeyProvider).get(limsKeyId);
                     }
-                    if ((sp == null && lp == null) || (sp != null && lp != null)) {
-                        status = Status.ERROR;
-                    }
 
-                    //check that the lims key version and last modified matches provenance object's version and last modified
-                    if (status == Status.ERROR) {
-                        //
-                    } else if (sp != null) {
-                        if (sp.getVersion() == null || !sp.getVersion().equals(limsKeyVersion)) {
-                            status = Status.ERROR;
-                        }
-                        if (sp.getLastModified() == null || !sp.getLastModified().equals(limsKeyLastModified)) {
-                            status = Status.ERROR;
-                        }
-                    } else if (lp != null) {
-                        if (lp.getVersion() == null || !lp.getVersion().equals(limsKeyVersion)) {
-                            status = Status.ERROR;
-                        }
-                        if (lp.getLastModified() == null || !lp.getLastModified().equals(limsKeyLastModified)) {
-                            status = Status.ERROR;
-                        }
-                    } else {
-                        //
-                    }
-
-                    //instantiate file provenance for each lims key associated with the current analysis provenance object
                     FileProvenanceFromAnalysisProvenance b;
-                    if ((sp == null && lp == null) || (sp != null && lp != null)) {
-                        //unable to build fp
+                    if ((sp == null && lp == null)) {
+                        //check that AP object joins either one SP or one LP object
+                        status = Status.ERROR;
+                        statusReasons.add("Unable to determine sample or lane provenance");
+                        b = new FileProvenanceFromAnalysisProvenance();
+                        b.setAnalysisProvenance(ap);
+                    } else if (sp != null && lp != null) {
+                        status = Status.ERROR;
+                        statusReasons.add("Sample and lane provenance have the same id");
                         b = new FileProvenanceFromAnalysisProvenance();
                         b.setAnalysisProvenance(ap);
                     } else if (sp != null) {
+                        //check SP version and last modified matches what is set in LimsKey
+                        if (sp.getVersion() == null || !sp.getVersion().equals(limsKeyVersion)) {
+                            status = Status.STALE;
+                            statusReasons.add("Sample provenance version mismatch");
+                        }
+                        if (sp.getLastModified() == null || !sp.getLastModified().equals(limsKeyLastModified)) {
+                            status = Status.STALE;
+                            statusReasons.add("Sample provenance last modified mismatch");
+                        }
                         FileProvenanceFromSampleProvenance fpSp = new FileProvenanceFromSampleProvenance();
                         fpSp.sampleProvenance(sp);
                         fpSp.setAnalysisProvenance(ap);
                         b = fpSp;
 
                         if (Boolean.TRUE.equals(ap.getSkip())) {
-                            skip = true;
+                            isSkipped = true;
                         } else if (Boolean.TRUE.equals(sp.getSkip())) {
-                            skip = true;
+                            isSkipped = true;
                         } else if (ap.getFileAttributes().containsKey("skip")
                                 || ap.getWorkflowRunAttributes().containsKey("skip")) {
-                            skip = true;
+                            isSkipped = true;
                         } else if (sp.getLaneAttributes().containsKey("skip")
                                 || sp.getSequencerRunAttributes().containsKey("skip")
                                 || sp.getSampleAttributes().containsKey("skip")
                                 || sp.getStudyAttributes().containsKey("skip")) {
-                            skip = true;
+                            isSkipped = true;
                         } else {
                             //
                         }
                     } else if (lp != null) {
+                        //check LP version and last modified matches what is set in LimsKey
+                        if (lp.getVersion() == null || !lp.getVersion().equals(limsKeyVersion)) {
+                            status = Status.STALE;
+                            statusReasons.add("Lane provenance version mismatch");
+                        }
+                        if (lp.getLastModified() == null || !lp.getLastModified().equals(limsKeyLastModified)) {
+                            status = Status.STALE;
+                            statusReasons.add("Lane provenance last modified mismatch");
+                        }
+
                         FileProvenanceFromLaneProvenance fpLp = new FileProvenanceFromLaneProvenance();
                         fpLp.laneProvenance(lp);
                         fpLp.setAnalysisProvenance(ap);
                         b = fpLp;
 
                         if (Boolean.TRUE.equals(ap.getSkip())) {
-                            skip = true;
+                            isSkipped = true;
                         } else if (ap.getFileAttributes().containsKey("skip")
                                 || ap.getWorkflowRunAttributes().containsKey("skip")) {
-                            skip = true;
+                            isSkipped = true;
                         } else if (Boolean.TRUE.equals(lp.getSkip())) {
-                            skip = true;
+                            isSkipped = true;
                         } else if (lp.getLaneAttributes().containsKey("skip")
                                 || lp.getSequencerRunAttributes().containsKey("skip")) {
-                            skip = true;
+                            isSkipped = true;
                         } else {
                             //
                         }
                     } else {
-                        //catch all
                         status = Status.ERROR;
+                        statusReasons.add("Provenance client internal error");
                         b = new FileProvenanceFromAnalysisProvenance();
                         b.setAnalysisProvenance(ap);
                     }
 
-                    b.setStatus(status);
-
+                    b.setStatusReason(Joiner.on(",").join(statusReasons));
                     tmp.add(b);
                 }
 
-                //if any of the analysis provenance lims objects are marked "skip", then all should be marked as skipped
+                //file provenance objects share the following attributes:
+                // - Skip
+                // - Status
                 for (FileProvenanceFromAnalysisProvenance b : tmp) {
-                    if (skip) {
-                        b.setSkip(true);
-                    }
-
+                    b.setSkip(isSkipped);
+                    b.setStatus(status);
                     fps.add(b);
                 }
             }
