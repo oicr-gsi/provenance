@@ -78,6 +78,7 @@ public class DefaultFileProvenance implements FileProvenance {
 
     //record status
     private final Status status;
+    private final String statusReason;
     private final DateTime lastModified;
 
     @Singular
@@ -89,9 +90,9 @@ public class DefaultFileProvenance implements FileProvenance {
     private final Collection<String> iusTags;
 
     private final SortedMap<String, SortedSet<String>> iusAttributes;
-    
+
     public static class Builder {
-        
+
         public Builder copyFrom(FileProvenance fp) {
             studyTitles(fp.getStudyTitles());
             studyAttributes(fp.getStudyAttributes());
@@ -130,9 +131,9 @@ public class DefaultFileProvenance implements FileProvenance {
             fileMd5sum(fp.getFileMd5sum());
             fileDescription(fp.getFileDescription());
             skip(fp.getSkip());
-            
+
             return this;
         }
-        
+
     }
 }

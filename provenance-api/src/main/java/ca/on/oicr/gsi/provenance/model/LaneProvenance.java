@@ -19,7 +19,7 @@ public interface LaneProvenance extends LimsProvenance {
     public String getLaneNumber();
 
     public SortedMap<String, SortedSet<String>> getLaneAttributes();
-    
+
     public Boolean getSkip();
 
     public String getLaneProvenanceId();
