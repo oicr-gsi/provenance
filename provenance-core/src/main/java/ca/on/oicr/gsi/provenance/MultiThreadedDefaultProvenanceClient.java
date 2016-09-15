@@ -4,6 +4,7 @@ import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenance;
 import ca.on.oicr.gsi.provenance.model.LaneProvenance;
 import ca.on.oicr.gsi.provenance.model.SampleProvenance;
+import com.google.common.base.Stopwatch;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,6 +19,9 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  *
@@ -27,6 +31,7 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
 
     private ExecutorService es;
     private CompletionService cs;
+    private final Logger log = LogManager.getLogger(MultiThreadedDefaultProvenanceClient.class);
 
     private Future<Map<String, Map<String, SampleProvenance>>> getSampleProvenanceFutureByProvider(final Map<String, Set<String>> filters) throws InterruptedException {
         final CompletionService<Map<String, Map<String, SampleProvenance>>> compService = new ExecutorCompletionService(es);
@@ -39,12 +44,15 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
             Callable<Map<String, Map<String, SampleProvenance>>> c = new Callable<Map<String, Map<String, SampleProvenance>>>() {
                 @Override
                 public Map<String, Map<String, SampleProvenance>> call() {
+                    Stopwatch sw = Stopwatch.createStarted();
+                    log.info("Provider = [{}] start getSampleProvenance()", provider);
                     Collection<SampleProvenance> sps;
                     if (filters == null || filters.isEmpty()) {
                         sps = spp.getSampleProvenance();
                     } else {
                         sps = spp.getSampleProvenance(filters);
                     }
+                    log.info("Provider = [{}] completed getSampleProvenance() in {}", provider, sw.toString());
 
                     Map<String, SampleProvenance> spsById = new HashMap<>();
                     for (SampleProvenance sp : sps) {
@@ -91,12 +99,15 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
             Callable<Map<String, Map<String, LaneProvenance>>> c = new Callable<Map<String, Map<String, LaneProvenance>>>() {
                 @Override
                 public Map<String, Map<String, LaneProvenance>> call() throws Exception {
+                    Stopwatch sw = Stopwatch.createStarted();
+                    log.info("Provider = [{}] start getLaneProvenance()", provider);
                     Collection<LaneProvenance> lps;
                     if (filters == null || filters.isEmpty()) {
                         lps = lpp.getLaneProvenance();
                     } else {
                         lps = lpp.getLaneProvenance(filters);
                     }
+                    log.info("Provider = [{}] completed getLaneProvenance() in {}", provider, sw.toString());
 
                     Map<String, LaneProvenance> lpsById = new HashMap<>();
                     for (LaneProvenance lp : lps) {
@@ -143,12 +154,15 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
             Callable<Map<String, Collection<AnalysisProvenance>>> c = new Callable<Map<String, Collection<AnalysisProvenance>>>() {
                 @Override
                 public Map<String, Collection<AnalysisProvenance>> call() {
+                    Stopwatch sw = Stopwatch.createStarted();
+                    log.info("Provider = [{}] start getAnalysisProvenance()", provider);
                     Collection<AnalysisProvenance> aps;
                     if (filters == null || filters.isEmpty()) {
                         aps = app.getAnalysisProvenance();
                     } else {
                         aps = app.getAnalysisProvenance(filters);
                     }
+                    log.info("Provider = [{}] completed getAnalysisProvenance() in {}", provider, sw.toString());
 
                     Map<String, Collection<AnalysisProvenance>> m = new HashMap<>();
                     m.put(provider, aps);

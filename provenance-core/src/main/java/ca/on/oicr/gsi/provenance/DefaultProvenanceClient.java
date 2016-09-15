@@ -12,6 +12,7 @@ import ca.on.oicr.gsi.provenance.model.LaneProvenance;
 import ca.on.oicr.gsi.provenance.model.LimsKey;
 import ca.on.oicr.gsi.provenance.model.SampleProvenance;
 import com.google.common.base.Joiner;
+import com.google.common.base.Stopwatch;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,6 +23,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.joda.time.DateTime;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  *
@@ -32,6 +35,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
     protected final HashMap<String, AnalysisProvenanceProvider> analysisProvenanceProviders;
     protected final HashMap<String, SampleProvenanceProvider> sampleProvenanceProviders;
     protected final HashMap<String, LaneProvenanceProvider> laneProvenanceProviders;
+    private final Logger log = LogManager.getLogger(DefaultProvenanceClient.class);
 
     public DefaultProvenanceClient() {
         analysisProvenanceProviders = new HashMap<>();
@@ -58,12 +62,15 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             String provider = e.getKey();
             SampleProvenanceProvider spp = e.getValue();
 
+            Stopwatch sw = Stopwatch.createStarted();
+            log.info("Provider = [{}] start getSampleProvenance()", provider);
             Collection<SampleProvenance> sps;
             if (filters == null || filters.isEmpty()) {
                 sps = spp.getSampleProvenance();
             } else {
                 sps = spp.getSampleProvenance(filters);
             }
+            log.info("Provider = [{}] completed getSampleProvenance() in {}", provider, sw.toString());
 
             spsByProvider.put(provider, sps);
         }
@@ -96,12 +103,15 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             String provider = e.getKey();
             LaneProvenanceProvider lpp = e.getValue();
 
+            Stopwatch sw = Stopwatch.createStarted();
+            log.info("Provider = [{}] start getLaneProvenance()", provider);
             Collection<LaneProvenance> lps;
             if (filters == null || filters.isEmpty()) {
                 lps = lpp.getLaneProvenance();
             } else {
                 lps = lpp.getLaneProvenance(filters);
             }
+            log.info("Provider = [{}] completed getLaneProvenance() in {}", provider, sw.toString());
 
             lpsByProvider.put(provider, lps);
         }
@@ -134,12 +144,15 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             String provider = e.getKey();
             AnalysisProvenanceProvider app = e.getValue();
 
+            Stopwatch sw = Stopwatch.createStarted();
+            log.info("Provider = [{}] start getAnalysisProvenance()", provider);
             Collection<AnalysisProvenance> aps;
             if (filters == null || filters.isEmpty()) {
                 aps = app.getAnalysisProvenance();
             } else {
                 aps = app.getAnalysisProvenance(filters);
             }
+            log.info("Provider = [{}] completed getAnalysisProvenance() in {}", provider, sw.toString());
 
             apsByProvider.put(provider, aps);
         }
