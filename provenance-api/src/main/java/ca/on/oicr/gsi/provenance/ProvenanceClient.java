@@ -15,14 +15,14 @@ public interface ProvenanceClient {
 
     public Collection<FileProvenance> getFileProvenance();
 
-    public Collection<FileProvenance> getFileProvenance(Map<String, Set<String>> filters);
+    public Collection<FileProvenance> getFileProvenance(Map<FileProvenanceFilter, Set<String>> filters);
 
     public Collection<SampleProvenance> getSampleProvenance();
 
-    public Collection<SampleProvenance> getSampleProvenance(Map<String, Set<String>> filters);
+    public Collection<SampleProvenance> getSampleProvenance(Map<FileProvenanceFilter, Set<String>> filters);
 
     public Collection<LaneProvenance> getLaneProvenance();
 
-    public Collection<LaneProvenance> getLaneProvenance(Map<String, Set<String>> filters);
+    public Collection<LaneProvenance> getLaneProvenance(Map<FileProvenanceFilter, Set<String>> filters);
 
 }

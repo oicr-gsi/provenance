@@ -1,6 +1,6 @@
-package ca.on.oicr.gsi.provenance.model;
+package ca.on.oicr.gsi.provenance;
 
-public enum FileProvenanceParam {
+public enum FileProvenanceFilter {
     study,
     experiment,
     sample,
@@ -21,11 +21,11 @@ public enum FileProvenanceParam {
 
     private final String str;
 
-    private FileProvenanceParam() {
+    private FileProvenanceFilter() {
         this.str = null;
     }
 
-    private FileProvenanceParam(String str) {
+    private FileProvenanceFilter(String str) {
         this.str = str;
     }
 
@@ -35,5 +35,16 @@ public enum FileProvenanceParam {
             return super.toString();
         }
         return str;
+    }
+
+    public static FileProvenanceFilter fromString(String s) {
+        if (s != null) {
+            for (FileProvenanceFilter e : FileProvenanceFilter.values()) {
+                if (s.equalsIgnoreCase(e.toString()) || s.equalsIgnoreCase(e.name())) {
+                    return e;
+                }
+            }
+        }
+        throw new IllegalArgumentException("No enum constant for: " + s);
     }
 }

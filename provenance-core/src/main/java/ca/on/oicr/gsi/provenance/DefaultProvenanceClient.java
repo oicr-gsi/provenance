@@ -6,7 +6,6 @@ import ca.on.oicr.gsi.provenance.model.FileProvenance.Status;
 import ca.on.oicr.gsi.provenance.model.FileProvenanceFromAnalysisProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenanceFromLaneProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenanceFromSampleProvenance;
-import ca.on.oicr.gsi.provenance.model.FileProvenanceParam;
 import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import ca.on.oicr.gsi.provenance.model.LaneProvenance;
 import ca.on.oicr.gsi.provenance.model.LimsKey;
@@ -56,7 +55,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
     }
 
     @Override
-    public Map<String, Collection<SampleProvenance>> getSampleProvenanceByProvider(Map<String, Set<String>> filters) {
+    public Map<String, Collection<SampleProvenance>> getSampleProvenanceByProvider(Map<FileProvenanceFilter, Set<String>> filters) {
         Map<String, Collection<SampleProvenance>> spsByProvider = new HashMap<>();
         for (Entry<String, SampleProvenanceProvider> e : sampleProvenanceProviders.entrySet()) {
             String provider = e.getKey();
@@ -78,7 +77,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
     }
 
     @Override
-    public Map<String, Map<String, SampleProvenance>> getSampleProvenanceByProviderAndId(Map<String, Set<String>> filters) {
+    public Map<String, Map<String, SampleProvenance>> getSampleProvenanceByProviderAndId(Map<FileProvenanceFilter, Set<String>> filters) {
         Map<String, Map<String, SampleProvenance>> spsByProviderAndId = new HashMap<>();
 
         for (Entry<String, Collection<SampleProvenance>> e : getSampleProvenanceByProvider(filters).entrySet()) {
@@ -97,7 +96,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
     }
 
     @Override
-    public Map<String, Collection<LaneProvenance>> getLaneProvenanceByProvider(Map<String, Set<String>> filters) {
+    public Map<String, Collection<LaneProvenance>> getLaneProvenanceByProvider(Map<FileProvenanceFilter, Set<String>> filters) {
         Map<String, Collection<LaneProvenance>> lpsByProvider = new HashMap<>();
         for (Entry<String, LaneProvenanceProvider> e : laneProvenanceProviders.entrySet()) {
             String provider = e.getKey();
@@ -120,7 +119,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
     }
 
     @Override
-    public Map<String, Map<String, LaneProvenance>> getLaneProvenanceByProviderAndId(Map<String, Set<String>> filters) {
+    public Map<String, Map<String, LaneProvenance>> getLaneProvenanceByProviderAndId(Map<FileProvenanceFilter, Set<String>> filters) {
         Map<String, Map<String, LaneProvenance>> lpsByProviderAndId = new HashMap<>();
         for (Entry<String, Collection<LaneProvenance>> e : getLaneProvenanceByProvider(filters).entrySet()) {
             String provider = e.getKey();
@@ -138,7 +137,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
     }
 
     @Override
-    public Map<String, Collection<AnalysisProvenance>> getAnalysisProvenanceByProvider(Map<String, Set<String>> filters) {
+    public Map<String, Collection<AnalysisProvenance>> getAnalysisProvenanceByProvider(Map<FileProvenanceFilter, Set<String>> filters) {
         Map<String, Collection<AnalysisProvenance>> apsByProvider = new HashMap<>();
         for (Entry<String, AnalysisProvenanceProvider> e : analysisProvenanceProviders.entrySet()) {
             String provider = e.getKey();
@@ -169,7 +168,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
     }
 
     @Override
-    public Collection<SampleProvenance> getSampleProvenance(Map<String, Set<String>> filters) {
+    public Collection<SampleProvenance> getSampleProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
         List<SampleProvenance> sps = new ArrayList<>();
         for (Map<String, SampleProvenance> e : getSampleProvenanceByProviderAndId(filters).values()) {
             sps.addAll(e.values());
@@ -187,7 +186,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
     }
 
     @Override
-    public Collection<LaneProvenance> getLaneProvenance(Map<String, Set<String>> filters) {
+    public Collection<LaneProvenance> getLaneProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
         List<LaneProvenance> lps = new ArrayList<>();
         for (Map<String, LaneProvenance> e : getLaneProvenanceByProviderAndId(filters).values()) {
             lps.addAll(e.values());
@@ -203,7 +202,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
         return aps;
     }
 
-    public Collection<AnalysisProvenance> getAnalysisProvenance(Map<String, Set<String>> filters) {
+    public Collection<AnalysisProvenance> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
         List<AnalysisProvenance> aps = new ArrayList<>();
         for (Collection<AnalysisProvenance> e : getAnalysisProvenanceByProvider(filters).values()) {
             aps.addAll(e);
@@ -361,62 +360,77 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
     }
 
     @Override
-    public Collection<FileProvenance> getFileProvenance(Map<String, Set<String>> filters) {
-        Collection<FileProvenance> fps = new ArrayList<>();
-        for (FileProvenance f : getFileProvenance()) {
-            if (filters.containsKey(FileProvenanceParam.processing_status.toString())) {
-                if (!filters.get(FileProvenanceParam.processing_status.toString()).contains(f.getProcessingStatus())) {
+    public Collection<FileProvenance> getFileProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+        Collection<FileProvenance> fps = getFileProvenance(
+                //get all sample and lane provenance and filter after joining with AP
+                //if this is not done, there could be AP records that pass filters and do not have an associated SP or LP
+                //for example: AP record linked to SP(A) and SP(B), filtering on A would result in FP(AP+SP(B))=ERROR
+                //getSampleProvenanceByProviderAndId(filters),
+                //getLaneProvenanceByProviderAndId(filters),
+                getSampleProvenanceByProviderAndId(Collections.EMPTY_MAP),
+                getLaneProvenanceByProviderAndId(Collections.EMPTY_MAP),
+                getAnalysisProvenanceByProvider(filters)
+        );
+
+        return applyFileProvenanceFilters(fps, filters);
+    }
+
+    protected Collection<FileProvenance> applyFileProvenanceFilters(Collection<FileProvenance> fps, Map<FileProvenanceFilter, Set<String>> filters) {
+        Collection<FileProvenance> fpsFiltered = new ArrayList<>();
+        for (FileProvenance fp : fps) {
+            if (filters.containsKey(FileProvenanceFilter.processing_status)) {
+                if (!filters.get(FileProvenanceFilter.processing_status).contains(fp.getProcessingStatus())) {
                     continue;
                 }
             }
-            if (filters.containsKey(FileProvenanceParam.workflow_run_status.toString())) {
-                if (!filters.get(FileProvenanceParam.workflow_run_status.toString()).contains(f.getWorkflowRunStatus())) {
+            if (filters.containsKey(FileProvenanceFilter.workflow_run_status)) {
+                if (!filters.get(FileProvenanceFilter.workflow_run_status).contains(fp.getWorkflowRunStatus())) {
                     continue;
                 }
             }
-            if (filters.containsKey(FileProvenanceParam.study.toString())) {
-                if (!CollectionUtils.containsAny(filters.get(FileProvenanceParam.study.toString()), f.getStudyTitles())) {
+            if (filters.containsKey(FileProvenanceFilter.study)) {
+                if (!CollectionUtils.containsAny(filters.get(FileProvenanceFilter.study), fp.getStudyTitles())) {
                     continue;
                 }
             }
-            if (filters.containsKey(FileProvenanceParam.sample.toString())) {
-                if (!CollectionUtils.containsAny(filters.get(FileProvenanceParam.sample.toString()), f.getSampleNames())) {
+            if (filters.containsKey(FileProvenanceFilter.sample)) {
+                if (!CollectionUtils.containsAny(filters.get(FileProvenanceFilter.sample), fp.getSampleNames())) {
                     continue;
                 }
             }
-            if (filters.containsKey(FileProvenanceParam.root_sample.toString())) {
-                if (!CollectionUtils.containsAny(filters.get(FileProvenanceParam.root_sample.toString()), f.getRootSampleNames())) {
+            if (filters.containsKey(FileProvenanceFilter.root_sample)) {
+                if (!CollectionUtils.containsAny(filters.get(FileProvenanceFilter.root_sample), fp.getRootSampleNames())) {
                     continue;
                 }
             }
-            if (filters.containsKey(FileProvenanceParam.lane.toString())) {
-                if (!CollectionUtils.containsAny(filters.get(FileProvenanceParam.lane.toString()), f.getLaneNames())) {
+            if (filters.containsKey(FileProvenanceFilter.lane)) {
+                if (!CollectionUtils.containsAny(filters.get(FileProvenanceFilter.lane), fp.getLaneNames())) {
                     continue;
                 }
             }
-            if (filters.containsKey(FileProvenanceParam.sequencer_run.toString())) {
-                if (!CollectionUtils.containsAny(filters.get(FileProvenanceParam.sequencer_run.toString()), f.getSequencerRunNames())) {
+            if (filters.containsKey(FileProvenanceFilter.sequencer_run)) {
+                if (!CollectionUtils.containsAny(filters.get(FileProvenanceFilter.sequencer_run), fp.getSequencerRunNames())) {
                     continue;
                 }
             }
-            if (filters.containsKey(FileProvenanceParam.workflow.toString())) {
-                if (!filters.get(FileProvenanceParam.workflow.toString()).contains(f.getWorkflowSWID().toString())) {
+            if (filters.containsKey(FileProvenanceFilter.workflow)) {
+                if (!filters.get(FileProvenanceFilter.workflow).contains(fp.getWorkflowSWID().toString())) {
                     continue;
                 }
             }
-            if (filters.containsKey(FileProvenanceParam.workflow_run.toString())) {
-                if (!filters.get(FileProvenanceParam.workflow_run.toString()).contains(f.getWorkflowRunSWID().toString())) {
+            if (filters.containsKey(FileProvenanceFilter.workflow_run)) {
+                if (!filters.get(FileProvenanceFilter.workflow_run).contains(fp.getWorkflowRunSWID().toString())) {
                     continue;
                 }
             }
-            if (filters.containsKey(FileProvenanceParam.skip.toString())) {
-                if (!filters.get(FileProvenanceParam.skip.toString()).contains(f.getSkip())) {
+            if (filters.containsKey(FileProvenanceFilter.skip)) {
+                if (!filters.get(FileProvenanceFilter.skip).contains(fp.getSkip())) {
                     continue;
                 }
             }
-            fps.add(f);
+            fpsFiltered.add(fp);
         }
-        return fps;
+        return fpsFiltered;
     }
 
 }

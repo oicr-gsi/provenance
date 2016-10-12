@@ -13,6 +13,6 @@ public interface LaneProvenanceProvider {
 
     public Collection<LaneProvenance> getLaneProvenance();
 
-    public Collection<LaneProvenance> getLaneProvenance(Map<String, Set<String>> filters);
+    public Collection<LaneProvenance> getLaneProvenance(Map<FileProvenanceFilter, Set<String>> filters);
 
 }
