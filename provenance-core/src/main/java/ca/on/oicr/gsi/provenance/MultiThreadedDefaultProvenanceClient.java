@@ -19,7 +19,6 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -45,7 +44,7 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
                 @Override
                 public Map<String, Map<String, SampleProvenance>> call() {
                     Stopwatch sw = Stopwatch.createStarted();
-                    log.info("Provider = [{}] start getSampleProvenance()", provider);
+                    log.info("Provider = [{}] started getSampleProvenance()", provider);
                     Collection<SampleProvenance> sps;
                     if (filters == null || filters.isEmpty()) {
                         sps = spp.getSampleProvenance();
@@ -100,7 +99,7 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
                 @Override
                 public Map<String, Map<String, LaneProvenance>> call() throws Exception {
                     Stopwatch sw = Stopwatch.createStarted();
-                    log.info("Provider = [{}] start getLaneProvenance()", provider);
+                    log.info("Provider = [{}] started getLaneProvenance()", provider);
                     Collection<LaneProvenance> lps;
                     if (filters == null || filters.isEmpty()) {
                         lps = lpp.getLaneProvenance();
@@ -155,7 +154,7 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
                 @Override
                 public Map<String, Collection<AnalysisProvenance>> call() {
                     Stopwatch sw = Stopwatch.createStarted();
-                    log.info("Provider = [{}] start getAnalysisProvenance()", provider);
+                    log.info("Provider = [{}] started getAnalysisProvenance()", provider);
                     Collection<AnalysisProvenance> aps;
                     if (filters == null || filters.isEmpty()) {
                         aps = app.getAnalysisProvenance();

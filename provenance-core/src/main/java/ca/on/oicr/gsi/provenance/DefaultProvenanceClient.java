@@ -66,7 +66,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             SampleProvenanceProvider spp = e.getValue();
 
             Stopwatch sw = Stopwatch.createStarted();
-            log.info("Provider = [{}] start getSampleProvenance()", provider);
+            log.info("Provider = [{}] started getSampleProvenance()", provider);
             Collection<SampleProvenance> sps;
             if (filters == null || filters.isEmpty()) {
                 sps = spp.getSampleProvenance();
@@ -107,7 +107,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             LaneProvenanceProvider lpp = e.getValue();
 
             Stopwatch sw = Stopwatch.createStarted();
-            log.info("Provider = [{}] start getLaneProvenance()", provider);
+            log.info("Provider = [{}] started getLaneProvenance()", provider);
             Collection<LaneProvenance> lps;
             if (filters == null || filters.isEmpty()) {
                 lps = lpp.getLaneProvenance();
@@ -150,7 +150,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             AnalysisProvenanceProvider app = e.getValue();
 
             Stopwatch sw = Stopwatch.createStarted();
-            log.info("Provider = [{}] start getAnalysisProvenance()", provider);
+            log.info("Provider = [{}] started getAnalysisProvenance()", provider);
             Collection<AnalysisProvenance> aps;
             if (filters == null || filters.isEmpty()) {
                 aps = app.getAnalysisProvenance();
