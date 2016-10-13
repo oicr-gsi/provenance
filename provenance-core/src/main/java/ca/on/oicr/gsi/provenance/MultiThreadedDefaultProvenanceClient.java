@@ -19,7 +19,6 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -33,7 +32,7 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
     private CompletionService cs;
     private final Logger log = LogManager.getLogger(MultiThreadedDefaultProvenanceClient.class);
 
-    private Future<Map<String, Map<String, SampleProvenance>>> getSampleProvenanceFutureByProvider(final Map<String, Set<String>> filters) throws InterruptedException {
+    private Future<Map<String, Map<String, SampleProvenance>>> getSampleProvenanceFutureByProvider(final Map<FileProvenanceFilter, Set<String>> filters) throws InterruptedException {
         final CompletionService<Map<String, Map<String, SampleProvenance>>> compService = new ExecutorCompletionService(es);
 
         final List<Future<Map<String, Map<String, SampleProvenance>>>> tasks = new ArrayList<>();
@@ -45,7 +44,7 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
                 @Override
                 public Map<String, Map<String, SampleProvenance>> call() {
                     Stopwatch sw = Stopwatch.createStarted();
-                    log.info("Provider = [{}] start getSampleProvenance()", provider);
+                    log.info("Provider = [{}] started getSampleProvenance()", provider);
                     Collection<SampleProvenance> sps;
                     if (filters == null || filters.isEmpty()) {
                         sps = spp.getSampleProvenance();
@@ -88,7 +87,7 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
         return cs.submit(collect);
     }
 
-    private Future<Map<String, Map<String, LaneProvenance>>> getLaneProvenanceFutureByProvider(final Map<String, Set<String>> filters) throws InterruptedException {
+    private Future<Map<String, Map<String, LaneProvenance>>> getLaneProvenanceFutureByProvider(final Map<FileProvenanceFilter, Set<String>> filters) throws InterruptedException {
         final CompletionService<Map<String, Map<String, LaneProvenance>>> compService = new ExecutorCompletionService(es);
 
         final List<Future<Map<String, Map<String, LaneProvenance>>>> tasks = new ArrayList<>();
@@ -100,7 +99,7 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
                 @Override
                 public Map<String, Map<String, LaneProvenance>> call() throws Exception {
                     Stopwatch sw = Stopwatch.createStarted();
-                    log.info("Provider = [{}] start getLaneProvenance()", provider);
+                    log.info("Provider = [{}] started getLaneProvenance()", provider);
                     Collection<LaneProvenance> lps;
                     if (filters == null || filters.isEmpty()) {
                         lps = lpp.getLaneProvenance();
@@ -143,7 +142,7 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
         return cs.submit(collect);
     }
 
-    private Future<Map<String, Collection<AnalysisProvenance>>> getAnalysisProvenanceFutureByProvider(final Map<String, Set<String>> filters) throws InterruptedException {
+    private Future<Map<String, Collection<AnalysisProvenance>>> getAnalysisProvenanceFutureByProvider(final Map<FileProvenanceFilter, Set<String>> filters) throws InterruptedException {
         final CompletionService<Map<String, Collection<AnalysisProvenance>>> compService = new ExecutorCompletionService(es);
 
         final List<Future<Map<String, Collection<AnalysisProvenance>>>> tasks = new ArrayList<>();
@@ -155,7 +154,7 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
                 @Override
                 public Map<String, Collection<AnalysisProvenance>> call() {
                     Stopwatch sw = Stopwatch.createStarted();
-                    log.info("Provider = [{}] start getAnalysisProvenance()", provider);
+                    log.info("Provider = [{}] started getAnalysisProvenance()", provider);
                     Collection<AnalysisProvenance> aps;
                     if (filters == null || filters.isEmpty()) {
                         aps = app.getAnalysisProvenance();
@@ -194,12 +193,24 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
 
     @Override
     public Collection<FileProvenance> getFileProvenance() {
+        return getFileProvenance(Collections.EMPTY_MAP);
+    }
+
+    @Override
+    public Collection<FileProvenance> getFileProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
         es = Executors.newFixedThreadPool(8);
         cs = new ExecutorCompletionService(es);
         try {
+            //get all sample and lane provenance and filter after joining with AP
+            //if this is not done, there could be AP records that pass filters and do not have an associated SP or LP
+            //for example: AP record linked to SP(A) and SP(B), filtering on A would result in FP(AP+SP(B))=ERROR
+            //getSampleProvenanceByProviderAndId(filters),
+            //getLaneProvenanceByProviderAndId(filters),
+            //Future<Map<String, Map<String, SampleProvenance>>> spsByProvider = getSampleProvenanceFutureByProvider(filters);
+            //Future<Map<String, Map<String, LaneProvenance>>> lpsByProvider = getLaneProvenanceFutureByProvider(filters);
             Future<Map<String, Map<String, SampleProvenance>>> spsByProvider = getSampleProvenanceFutureByProvider(Collections.EMPTY_MAP);
             Future<Map<String, Map<String, LaneProvenance>>> lpsByProvider = getLaneProvenanceFutureByProvider(Collections.EMPTY_MAP);
-            Future<Map<String, Collection<AnalysisProvenance>>> apsByProvider = getAnalysisProvenanceFutureByProvider(Collections.EMPTY_MAP);
+            Future<Map<String, Collection<AnalysisProvenance>>> apsByProvider = getAnalysisProvenanceFutureByProvider(filters);
             int aggregationTasksRemaining = 3;
 
             while (aggregationTasksRemaining > 0) {
@@ -208,7 +219,7 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
                 f.get();
             }
 
-            return getFileProvenance(spsByProvider.get(), lpsByProvider.get(), apsByProvider.get());
+            return applyFileProvenanceFilters(getFileProvenance(spsByProvider.get(), lpsByProvider.get(), apsByProvider.get()), filters);
         } catch (ExecutionException | InterruptedException ex) {
             throw new RuntimeException(ex);
         } finally {

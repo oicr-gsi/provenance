@@ -13,6 +13,6 @@ public interface SampleProvenanceProvider {
 
     public Collection<SampleProvenance> getSampleProvenance();
 
-    public Collection<SampleProvenance> getSampleProvenance(Map<String, Set<String>> filters);
+    public Collection<SampleProvenance> getSampleProvenance(Map<FileProvenanceFilter, Set<String>> filters);
 
 }
