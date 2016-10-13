@@ -2,12 +2,9 @@ package ca.on.oicr.gsi.provenance;
 
 public enum FileProvenanceFilter {
     study,
-    experiment,
     sample,
     root_sample("root-sample"),
-    organism,
     processing,
-    sample_ancestor("sample-ancestor"),
     processing_status("processing-status"),
     sequencer_run("sequencer-run"),
     lane,

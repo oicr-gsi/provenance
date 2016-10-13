@@ -11,7 +11,11 @@ import ca.on.oicr.gsi.provenance.model.LaneProvenance;
 import ca.on.oicr.gsi.provenance.model.LimsKey;
 import ca.on.oicr.gsi.provenance.model.SampleProvenance;
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -108,7 +112,9 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             if (filters == null || filters.isEmpty()) {
                 lps = lpp.getLaneProvenance();
             } else {
-                lps = lpp.getLaneProvenance(filters);
+                //not supported currently, lps will be filtered upstream
+                //lps = lpp.getLaneProvenance(filters);
+                lps = lpp.getLaneProvenance();
             }
             log.info("Provider = [{}] completed getLaneProvenance() in {}", provider, sw.toString());
 
@@ -375,62 +381,171 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
         return applyFileProvenanceFilters(fps, filters);
     }
 
-    protected Collection<FileProvenance> applyFileProvenanceFilters(Collection<FileProvenance> fps, Map<FileProvenanceFilter, Set<String>> filters) {
-        Collection<FileProvenance> fpsFiltered = new ArrayList<>();
-        for (FileProvenance fp : fps) {
-            if (filters.containsKey(FileProvenanceFilter.processing_status)) {
-                if (!filters.get(FileProvenanceFilter.processing_status).contains(fp.getProcessingStatus())) {
-                    continue;
-                }
+    protected Collection<FileProvenance> applyFileProvenanceFilters(Collection<FileProvenance> fps, final Map<FileProvenanceFilter, Set<String>> filters) {
+
+        List<Predicate<FileProvenance>> filterPredicates = new ArrayList<>();
+        for (FileProvenanceFilter fpf : FileProvenanceFilter.values()) {
+            switch (fpf) {
+                case file:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return vals.contains(f.getFileSWID().toString());
+                            }
+                        });
+                    }
+                    break;
+                case file_meta_type:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return vals.contains(f.getFileMetaType());
+                            }
+                        });
+                    }
+                    break;
+                case ius:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return CollectionUtils.containsAny(vals, Sets.newHashSet(f.getIusSWIDs()));
+                            }
+                        });
+                    }
+                    break;
+                case lane:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return CollectionUtils.containsAny(vals, f.getLaneNames());
+                            }
+                        });
+                    }
+                    break;
+                case processing:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return vals.contains(f.getProcessingSWID().toString());
+                            }
+                        });
+                    }
+                    break;
+                case processing_status:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return vals.contains(f.getProcessingStatus());
+                            }
+                        });
+                    }
+                    break;
+                case root_sample:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return CollectionUtils.containsAny(vals, f.getRootSampleNames());
+                            }
+                        });
+                    }
+                    break;
+                case sample:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return CollectionUtils.containsAny(vals, f.getSampleNames());
+                            }
+                        });
+                    }
+                    break;
+                case sequencer_run:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return CollectionUtils.containsAny(vals, f.getSequencerRunNames());
+                            }
+                        });
+                    }
+                    break;
+                case skip:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return vals.contains(f.getSkip());
+                            }
+                        });
+                    }
+                    break;
+                case study:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return CollectionUtils.containsAny(vals, f.getStudyTitles());
+                            }
+                        });
+                    }
+                    break;
+                case workflow:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return vals.contains(f.getWorkflowSWID().toString());
+                            }
+                        });
+                    }
+                    break;
+                case workflow_run:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return vals.contains(f.getWorkflowRunSWID().toString());
+                            }
+                        });
+                    }
+                    break;
+                case workflow_run_status:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return vals.contains(f.getWorkflowRunStatus());
+                            }
+                        });
+                    }
+                    break;
+                default:
+                    throw new RuntimeException("Implement method for filter: " + fpf.name());
             }
-            if (filters.containsKey(FileProvenanceFilter.workflow_run_status)) {
-                if (!filters.get(FileProvenanceFilter.workflow_run_status).contains(fp.getWorkflowRunStatus())) {
-                    continue;
-                }
-            }
-            if (filters.containsKey(FileProvenanceFilter.study)) {
-                if (!CollectionUtils.containsAny(filters.get(FileProvenanceFilter.study), fp.getStudyTitles())) {
-                    continue;
-                }
-            }
-            if (filters.containsKey(FileProvenanceFilter.sample)) {
-                if (!CollectionUtils.containsAny(filters.get(FileProvenanceFilter.sample), fp.getSampleNames())) {
-                    continue;
-                }
-            }
-            if (filters.containsKey(FileProvenanceFilter.root_sample)) {
-                if (!CollectionUtils.containsAny(filters.get(FileProvenanceFilter.root_sample), fp.getRootSampleNames())) {
-                    continue;
-                }
-            }
-            if (filters.containsKey(FileProvenanceFilter.lane)) {
-                if (!CollectionUtils.containsAny(filters.get(FileProvenanceFilter.lane), fp.getLaneNames())) {
-                    continue;
-                }
-            }
-            if (filters.containsKey(FileProvenanceFilter.sequencer_run)) {
-                if (!CollectionUtils.containsAny(filters.get(FileProvenanceFilter.sequencer_run), fp.getSequencerRunNames())) {
-                    continue;
-                }
-            }
-            if (filters.containsKey(FileProvenanceFilter.workflow)) {
-                if (!filters.get(FileProvenanceFilter.workflow).contains(fp.getWorkflowSWID().toString())) {
-                    continue;
-                }
-            }
-            if (filters.containsKey(FileProvenanceFilter.workflow_run)) {
-                if (!filters.get(FileProvenanceFilter.workflow_run).contains(fp.getWorkflowRunSWID().toString())) {
-                    continue;
-                }
-            }
-            if (filters.containsKey(FileProvenanceFilter.skip)) {
-                if (!filters.get(FileProvenanceFilter.skip).contains(fp.getSkip())) {
-                    continue;
-                }
-            }
-            fpsFiltered.add(fp);
         }
-        return fpsFiltered;
+
+        return Collections2.filter(fps, Predicates.and(filterPredicates));
     }
 
 }
