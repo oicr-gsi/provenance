@@ -13,6 +13,6 @@ public interface AnalysisProvenanceProvider {
 
     public Collection<AnalysisProvenance> getAnalysisProvenance();
 
-    public Collection<AnalysisProvenance> getAnalysisProvenance(Map<String, Set<String>> filters);
+    public Collection<AnalysisProvenance> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters);
 
 }

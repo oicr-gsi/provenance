@@ -13,14 +13,14 @@ import java.util.Set;
  */
 public interface ExtendedProvenanceClient extends ProvenanceClient {
 
-    public Map<String, Collection<LaneProvenance>> getLaneProvenanceByProvider(Map<String, Set<String>> filters);
+    public Map<String, Collection<LaneProvenance>> getLaneProvenanceByProvider(Map<FileProvenanceFilter, Set<String>> filters);
 
-    public Map<String, Map<String, LaneProvenance>> getLaneProvenanceByProviderAndId(Map<String, Set<String>> filters);
+    public Map<String, Map<String, LaneProvenance>> getLaneProvenanceByProviderAndId(Map<FileProvenanceFilter, Set<String>> filters);
 
-    public Map<String, Collection<SampleProvenance>> getSampleProvenanceByProvider(Map<String, Set<String>> filters);
+    public Map<String, Collection<SampleProvenance>> getSampleProvenanceByProvider(Map<FileProvenanceFilter, Set<String>> filters);
 
-    public Map<String, Map<String, SampleProvenance>> getSampleProvenanceByProviderAndId(Map<String, Set<String>> filters);
+    public Map<String, Map<String, SampleProvenance>> getSampleProvenanceByProviderAndId(Map<FileProvenanceFilter, Set<String>> filters);
 
-    public Map<String, Collection<AnalysisProvenance>> getAnalysisProvenanceByProvider(Map<String, Set<String>> filters);
+    public Map<String, Collection<AnalysisProvenance>> getAnalysisProvenanceByProvider(Map<FileProvenanceFilter, Set<String>> filters);
 
 }
