@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.joda.time.DateTime;
@@ -392,7 +393,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         filterPredicates.add(new Predicate<FileProvenance>() {
                             @Override
                             public boolean apply(FileProvenance f) {
-                                return vals.contains(f.getFileSWID().toString());
+                                return vals.contains(Objects.toString(f.getFileSWID()));
                             }
                         });
                     }
@@ -436,7 +437,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         filterPredicates.add(new Predicate<FileProvenance>() {
                             @Override
                             public boolean apply(FileProvenance f) {
-                                return vals.contains(f.getProcessingSWID().toString());
+                                return vals.contains(Objects.toString(f.getProcessingSWID()));
                             }
                         });
                     }
@@ -524,7 +525,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         filterPredicates.add(new Predicate<FileProvenance>() {
                             @Override
                             public boolean apply(FileProvenance f) {
-                                return vals.contains(f.getWorkflowSWID().toString());
+                                return vals.contains(Objects.toString(f.getWorkflowSWID()));
                             }
                         });
                     }
@@ -535,7 +536,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         filterPredicates.add(new Predicate<FileProvenance>() {
                             @Override
                             public boolean apply(FileProvenance f) {
-                                return vals.contains(f.getWorkflowRunSWID().toString());
+                                return vals.contains(Objects.toString(f.getWorkflowRunSWID()));
                             }
                         });
                     }
