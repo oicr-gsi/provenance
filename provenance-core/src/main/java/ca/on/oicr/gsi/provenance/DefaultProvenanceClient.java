@@ -88,8 +88,8 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             String provider = e.getKey();
             Map<String, SampleProvenance> spsById = new HashMap<>();
             for (SampleProvenance sp : e.getValue()) {
-                if (spsById.put(sp.getSampleProvenanceId(), sp) != null) {
-                    throw new RuntimeException("Duplicate sample provenance ID = [" + sp.getSampleProvenanceId() + "] from provider = [" + provider + "]");
+                if (spsById.put(sp.getProvenanceId(), sp) != null) {
+                    throw new RuntimeException("Duplicate sample provenance ID = [" + sp.getProvenanceId() + "] from provider = [" + provider + "]");
                 }
             }
 
@@ -132,8 +132,8 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
 
             Map<String, LaneProvenance> lpsById = new HashMap<>();
             for (LaneProvenance lp : e.getValue()) {
-                if (lpsById.put(lp.getLaneProvenanceId(), lp) != null) {
-                    throw new RuntimeException("Duplicate lane provenance ID = [" + lp.getLaneProvenanceId() + "] from provider = [" + provider + "]");
+                if (lpsById.put(lp.getProvenanceId(), lp) != null) {
+                    throw new RuntimeException("Duplicate lane provenance ID = [" + lp.getProvenanceId() + "] from provider = [" + provider + "]");
                 }
             }
 
