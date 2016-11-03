@@ -485,6 +485,17 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         });
                     }
                     break;
+                case sequencer_run_platform_model:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return CollectionUtils.containsAny(vals, f.getSequencerRunPlatformNames());
+                            }
+                        });
+                    }
+                    break;
                 case skip:
                     if (!CollectionUtils.isEmpty(filters.get(fpf))) {
                         final Set<String> vals = filters.get(fpf);
