@@ -79,7 +79,7 @@ public abstract class ProvenanceClientBase {
         DateTime limsLastModified = DateTime.now();
 
         sp1 = Mockito.mock(SampleProvenance.class);
-        when(sp1.getSampleProvenanceId()).thenReturn("1");
+        when(sp1.getProvenanceId()).thenReturn("1");
         when(sp1.getVersion()).thenReturn("v1");
         when(sp1.getLastModified()).thenReturn(limsLastModified);
         LimsKey limsKey1 = Mockito.mock(LimsKey.class);
@@ -92,7 +92,7 @@ public abstract class ProvenanceClientBase {
         when(iusLimsKey1.getLimsKey()).thenReturn(limsKey1);
 
         sp2 = Mockito.mock(SampleProvenance.class);
-        when(sp2.getSampleProvenanceId()).thenReturn("2");
+        when(sp2.getProvenanceId()).thenReturn("2");
         when(sp2.getVersion()).thenReturn("v1");
         when(sp2.getLastModified()).thenReturn(limsLastModified);
         LimsKey limsKey2 = Mockito.mock(LimsKey.class);
@@ -105,7 +105,7 @@ public abstract class ProvenanceClientBase {
         when(iusLimsKey2.getLimsKey()).thenReturn(limsKey2);
 
         lp = Mockito.mock(LaneProvenance.class);
-        when(lp.getLaneProvenanceId()).thenReturn("3");
+        when(lp.getProvenanceId()).thenReturn("3");
         when(lp.getVersion()).thenReturn("v1");
         when(lp.getLastModified()).thenReturn(limsLastModified);
         LimsKey limsKey3 = Mockito.mock(LimsKey.class);
@@ -193,7 +193,7 @@ public abstract class ProvenanceClientBase {
 
     @Test
     public void sampleProvenanceIdChangeCheckStatusIsError() {
-        when(sp1.getSampleProvenanceId()).thenReturn("modified");
+        when(sp1.getProvenanceId()).thenReturn("modified");
         Collection<FileProvenance> fps = provenanceClient.getFileProvenance();
         assertEquals(fps.size(), expectedFpsSize);
         Map<Status, Integer> s = getStatusCount(fps);
@@ -204,7 +204,7 @@ public abstract class ProvenanceClientBase {
 
     @Test
     public void laneProvenanceIdChangeCheckStatusIsError() {
-        when(lp.getLaneProvenanceId()).thenReturn("modified");
+        when(lp.getProvenanceId()).thenReturn("modified");
         Collection<FileProvenance> fps = provenanceClient.getFileProvenance();
         assertEquals(fps.size(), expectedFpsSize);
         Map<Status, Integer> s = getStatusCount(fps);

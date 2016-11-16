@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.joda.time.DateTime;
@@ -88,8 +89,8 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             String provider = e.getKey();
             Map<String, SampleProvenance> spsById = new HashMap<>();
             for (SampleProvenance sp : e.getValue()) {
-                if (spsById.put(sp.getSampleProvenanceId(), sp) != null) {
-                    throw new RuntimeException("Duplicate sample provenance ID = [" + sp.getSampleProvenanceId() + "] from provider = [" + provider + "]");
+                if (spsById.put(sp.getProvenanceId(), sp) != null) {
+                    throw new RuntimeException("Duplicate sample provenance ID = [" + sp.getProvenanceId() + "] from provider = [" + provider + "]");
                 }
             }
 
@@ -132,8 +133,8 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
 
             Map<String, LaneProvenance> lpsById = new HashMap<>();
             for (LaneProvenance lp : e.getValue()) {
-                if (lpsById.put(lp.getLaneProvenanceId(), lp) != null) {
-                    throw new RuntimeException("Duplicate lane provenance ID = [" + lp.getLaneProvenanceId() + "] from provider = [" + provider + "]");
+                if (lpsById.put(lp.getProvenanceId(), lp) != null) {
+                    throw new RuntimeException("Duplicate lane provenance ID = [" + lp.getProvenanceId() + "] from provider = [" + provider + "]");
                 }
             }
 
@@ -392,7 +393,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         filterPredicates.add(new Predicate<FileProvenance>() {
                             @Override
                             public boolean apply(FileProvenance f) {
-                                return vals.contains(f.getFileSWID().toString());
+                                return vals.contains(Objects.toString(f.getFileSWID()));
                             }
                         });
                     }
@@ -436,7 +437,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         filterPredicates.add(new Predicate<FileProvenance>() {
                             @Override
                             public boolean apply(FileProvenance f) {
-                                return vals.contains(f.getProcessingSWID().toString());
+                                return vals.contains(Objects.toString(f.getProcessingSWID()));
                             }
                         });
                     }
@@ -485,6 +486,17 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         });
                     }
                     break;
+                case sequencer_run_platform_model:
+                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
+                        final Set<String> vals = filters.get(fpf);
+                        filterPredicates.add(new Predicate<FileProvenance>() {
+                            @Override
+                            public boolean apply(FileProvenance f) {
+                                return CollectionUtils.containsAny(vals, f.getSequencerRunPlatformNames());
+                            }
+                        });
+                    }
+                    break;
                 case skip:
                     if (!CollectionUtils.isEmpty(filters.get(fpf))) {
                         final Set<String> vals = filters.get(fpf);
@@ -513,7 +525,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         filterPredicates.add(new Predicate<FileProvenance>() {
                             @Override
                             public boolean apply(FileProvenance f) {
-                                return vals.contains(f.getWorkflowSWID().toString());
+                                return vals.contains(Objects.toString(f.getWorkflowSWID()));
                             }
                         });
                     }
@@ -524,7 +536,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         filterPredicates.add(new Predicate<FileProvenance>() {
                             @Override
                             public boolean apply(FileProvenance f) {
-                                return vals.contains(f.getWorkflowRunSWID().toString());
+                                return vals.contains(Objects.toString(f.getWorkflowRunSWID()));
                             }
                         });
                     }

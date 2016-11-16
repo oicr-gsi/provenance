@@ -55,8 +55,8 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
 
                     Map<String, SampleProvenance> spsById = new HashMap<>();
                     for (SampleProvenance sp : sps) {
-                        if (spsById.put(sp.getSampleProvenanceId(), sp) != null) {
-                            throw new RuntimeException("Duplicate sample provenance ID = [" + sp.getSampleProvenanceId() + "] from provider = [" + provider + "]");
+                        if (spsById.put(sp.getProvenanceId(), sp) != null) {
+                            throw new RuntimeException("Duplicate sample provenance ID = [" + sp.getProvenanceId() + "] from provider = [" + provider + "]");
                         }
                     }
 
@@ -110,8 +110,8 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
 
                     Map<String, LaneProvenance> lpsById = new HashMap<>();
                     for (LaneProvenance lp : lps) {
-                        if (lpsById.put(lp.getLaneProvenanceId(), lp) != null) {
-                            throw new RuntimeException("Duplicate lane provenance ID = [" + lp.getLaneProvenanceId() + "] from provider = [" + provider + "]");
+                        if (lpsById.put(lp.getProvenanceId(), lp) != null) {
+                            throw new RuntimeException("Duplicate lane provenance ID = [" + lp.getProvenanceId() + "] from provider = [" + provider + "]");
                         }
                     }
 

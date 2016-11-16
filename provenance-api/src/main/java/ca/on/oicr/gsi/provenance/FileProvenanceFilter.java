@@ -7,6 +7,7 @@ public enum FileProvenanceFilter {
     processing,
     processing_status("processing-status"),
     sequencer_run("sequencer-run"),
+    sequencer_run_platform_model("sequencer-run-platform-model"),
     lane,
     ius,
     workflow,
