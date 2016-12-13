@@ -17,6 +17,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -349,6 +350,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                     }
 
                     b.setStatusReason(Joiner.on(",").join(statusReasons));
+                    b.setIusLimsKeys(Arrays.asList(ik));
                     tmp.add(b);
                 }
 
