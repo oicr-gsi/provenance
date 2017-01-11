@@ -24,8 +24,14 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     protected Status status;
     protected String statusReason;
 
+    private Collection<IusLimsKey> iusLimsKeys;
+
     public void setAnalysisProvenance(AnalysisProvenance analysisProvenance) {
         this.analysisProvenance = analysisProvenance;
+    }
+
+    public void setIusLimsKeys(Collection<IusLimsKey> iusLimsKeys) {
+        this.iusLimsKeys = iusLimsKeys;
     }
 
     public void setSkip(boolean skip) {
@@ -239,6 +245,14 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
 
     @Override
     public Collection<IusLimsKey> getIusLimsKeys() {
+        if (iusLimsKeys != null) {
+            return iusLimsKeys;
+        } else {
+            return analysisProvenance.getIusLimsKeys();
+        }
+    }
+
+    public Collection<IusLimsKey> getRelatedIusLimsKeys() {
         return analysisProvenance.getIusLimsKeys();
     }
 
@@ -268,7 +282,15 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     @Override
     public Collection<String> getIusSWIDs() {
         SortedSet<String> iusSWIDs = new TreeSet<>();
-        for (IusLimsKey iusKey : analysisProvenance.getIusLimsKeys()) {
+        for (IusLimsKey iusKey : getIusLimsKeys()) {
+            iusSWIDs.add(iusKey.getIusSWID().toString());
+        }
+        return iusSWIDs;
+    }
+
+    public Collection<String> getReleatedIusSWIDs() {
+        SortedSet<String> iusSWIDs = new TreeSet<>();
+        for (IusLimsKey iusKey : getRelatedIusLimsKeys()) {
             iusSWIDs.add(iusKey.getIusSWID().toString());
         }
         return iusSWIDs;

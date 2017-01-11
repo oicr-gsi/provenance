@@ -17,6 +17,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -297,20 +298,12 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         fpSp.setAnalysisProvenance(ap);
                         b = fpSp;
 
-                        if (Boolean.TRUE.equals(ap.getSkip())) {
-                            isSkipped = true;
-                        } else if (Boolean.TRUE.equals(sp.getSkip())) {
-                            isSkipped = true;
-                        } else if (ap.getFileAttributes().containsKey("skip")
-                                || ap.getWorkflowRunAttributes().containsKey("skip")) {
-                            isSkipped = true;
-                        } else if (sp.getLaneAttributes().containsKey("skip")
+                        if (Boolean.TRUE.equals(sp.getSkip())
+                                || sp.getLaneAttributes().containsKey("skip")
                                 || sp.getSequencerRunAttributes().containsKey("skip")
                                 || sp.getSampleAttributes().containsKey("skip")
                                 || sp.getStudyAttributes().containsKey("skip")) {
                             isSkipped = true;
-                        } else {
-                            //
                         }
                     } else if (lp != null) {
                         //check LP version and last modified matches what is set in LimsKey
@@ -328,18 +321,10 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         fpLp.setAnalysisProvenance(ap);
                         b = fpLp;
 
-                        if (Boolean.TRUE.equals(ap.getSkip())) {
-                            isSkipped = true;
-                        } else if (ap.getFileAttributes().containsKey("skip")
-                                || ap.getWorkflowRunAttributes().containsKey("skip")) {
-                            isSkipped = true;
-                        } else if (Boolean.TRUE.equals(lp.getSkip())) {
-                            isSkipped = true;
-                        } else if (lp.getLaneAttributes().containsKey("skip")
+                        if (Boolean.TRUE.equals(lp.getSkip())
+                                || lp.getLaneAttributes().containsKey("skip")
                                 || lp.getSequencerRunAttributes().containsKey("skip")) {
                             isSkipped = true;
-                        } else {
-                            //
                         }
                     } else {
                         status = Status.ERROR;
@@ -348,7 +333,14 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         b.setAnalysisProvenance(ap);
                     }
 
+                    if (Boolean.TRUE.equals(ap.getSkip())
+                            || ap.getFileAttributes().containsKey("skip")
+                            || ap.getWorkflowRunAttributes().containsKey("skip")) {
+                        isSkipped = true;
+                    }
+
                     b.setStatusReason(Joiner.on(",").join(statusReasons));
+                    b.setIusLimsKeys(Arrays.asList(ik));
                     tmp.add(b);
                 }
 
