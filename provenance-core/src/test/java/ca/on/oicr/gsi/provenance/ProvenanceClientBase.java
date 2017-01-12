@@ -214,7 +214,7 @@ public abstract class ProvenanceClientBase {
     }
 
     @Test
-    public void testFileProvenanceFilters() {
+    public void testFileProvenanceIncludeFilters() {
         when(sp1.getLaneNumber()).thenReturn("1");
         when(sp1.getSequencerRunName()).thenReturn("RUN_1");
         when(sp1.getParentSampleName()).thenReturn("PARENT");
@@ -249,8 +249,58 @@ public abstract class ProvenanceClientBase {
 
         Set<String> doesNotExist = Sets.newHashSet("does_not_exist");
         for (Entry<FileProvenanceFilter, Set<String>> e : filters.entrySet()) {
-            assertFalse(provenanceClient.getFileProvenance(ImmutableMap.of(e.getKey(), e.getValue())).isEmpty(), "No results returned for filter [" + e.getKey() + "]. ");
-            assertTrue(provenanceClient.getFileProvenance(ImmutableMap.of(e.getKey(), doesNotExist)).isEmpty(), "Results returned for filter [" + e.getKey() + "]. ");
+            assertFalse(provenanceClient.getFileProvenance(ImmutableMap.of(e.getKey(), e.getValue())).isEmpty(), 
+                    "No results returned for filter [" + e.getKey() + "]. ");
+            assertTrue(provenanceClient.getFileProvenance(ImmutableMap.of(e.getKey(), doesNotExist)).isEmpty(), 
+                    "Results returned for filter [" + e.getKey() + "]. ");
+        }
+
+    }
+
+    @Test
+    public void testFileProvenanceExcludeFilters() {
+        when(sp1.getLaneNumber()).thenReturn("1");
+        when(sp1.getSequencerRunName()).thenReturn("RUN_1");
+        when(sp1.getParentSampleName()).thenReturn("PARENT");
+        when(sp1.getRootSampleName()).thenReturn("ROOT_0001");
+        when(sp1.getSampleName()).thenReturn("ROOT_0001_R_P");
+        when(sp1.getSkip()).thenReturn(true);
+        when(sp1.getStudyTitle()).thenReturn("STUDY_TITLE");
+
+        when(ap1.getFileId()).thenReturn(1000);
+        when(ap1.getFileMetaType()).thenReturn("file/type");
+        when(ap1.getProcessingId()).thenReturn(1001);
+        when(ap1.getProcessingStatus()).thenReturn("success");
+        when(ap1.getWorkflowRunStatus()).thenReturn("success");
+        when(ap1.getWorkflowRunId()).thenReturn(1002);
+        when(ap1.getWorkflowId()).thenReturn(1003);
+
+        Map<FileProvenanceFilter, Set<String>> excludeFilters = new HashMap<>();
+        excludeFilters.put(FileProvenanceFilter.file, ImmutableSet.of("1000"));
+        excludeFilters.put(FileProvenanceFilter.file_meta_type, ImmutableSet.of("file/type"));
+        excludeFilters.put(FileProvenanceFilter.ius, ImmutableSet.of("1"));
+        excludeFilters.put(FileProvenanceFilter.lane, ImmutableSet.of("RUN_1_lane_1"));
+        excludeFilters.put(FileProvenanceFilter.processing, ImmutableSet.of("1001"));
+        excludeFilters.put(FileProvenanceFilter.processing_status, ImmutableSet.of("success"));
+        excludeFilters.put(FileProvenanceFilter.root_sample, ImmutableSet.of("ROOT_0001"));
+        excludeFilters.put(FileProvenanceFilter.sample, ImmutableSet.of("ROOT_0001_R_P"));
+        excludeFilters.put(FileProvenanceFilter.sequencer_run, ImmutableSet.of("RUN_1"));
+        excludeFilters.put(FileProvenanceFilter.skip, ImmutableSet.of("true"));
+        excludeFilters.put(FileProvenanceFilter.study, ImmutableSet.of("STUDY_TITLE"));
+        excludeFilters.put(FileProvenanceFilter.workflow, ImmutableSet.of("1003"));
+        excludeFilters.put(FileProvenanceFilter.workflow_run, ImmutableSet.of("1002"));
+        excludeFilters.put(FileProvenanceFilter.workflow_run_status, ImmutableSet.of("success"));
+
+        //restrict record set to the mocked record in this test case
+        Map<FileProvenanceFilter, Set<String>> includeFilters = new HashMap<>();
+        includeFilters.put(FileProvenanceFilter.file, ImmutableSet.of("1000"));
+
+        Set<String> doesNotExist = Sets.newHashSet("does_not_exist");
+        for (Entry<FileProvenanceFilter, Set<String>> e : excludeFilters.entrySet()) {
+            assertEquals(provenanceClient.getFileProvenance(includeFilters, ImmutableMap.of(e.getKey(), e.getValue())).size(), 0,
+                    "Record count for exclude filter [" + e.getKey() + "]: ");
+            assertEquals(provenanceClient.getFileProvenance(includeFilters, ImmutableMap.of(e.getKey(), doesNotExist)).size(), 1,
+                    "Record count for exclude filter [" + e.getKey() + "]");
         }
 
     }
