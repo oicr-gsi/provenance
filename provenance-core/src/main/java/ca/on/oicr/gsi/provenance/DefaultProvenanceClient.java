@@ -374,7 +374,21 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
         return applyFileProvenanceFilters(fps, filters);
     }
 
+    @Override
+    public Collection<FileProvenance> getFileProvenance(Map<FileProvenanceFilter, Set<String>> includeFilters, Map<FileProvenanceFilter, Set<String>> excludeFilters) {
+        Collection<FileProvenance> fps = getFileProvenance(includeFilters);
+        return applyFileProvenanceFilters(Operation.EXCLUDE, fps, excludeFilters);
+    }
+
     protected Collection<FileProvenance> applyFileProvenanceFilters(Collection<FileProvenance> fps, final Map<FileProvenanceFilter, Set<String>> filters) {
+        return applyFileProvenanceFilters(Operation.INCLUDE, fps, filters);
+    }
+
+    public enum Operation {
+        INCLUDE, EXCLUDE;
+    }
+
+    protected Collection<FileProvenance> applyFileProvenanceFilters(Operation op, Collection<FileProvenance> fps, final Map<FileProvenanceFilter, Set<String>> filters) {
 
         List<Predicate<FileProvenance>> filterPredicates = new ArrayList<>();
         for (FileProvenanceFilter fpf : FileProvenanceFilter.values()) {
@@ -549,7 +563,18 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             }
         }
 
-        return Collections2.filter(fps, Predicates.and(filterPredicates));
+        if (null == op) {
+            throw new RuntimeException("null filter operation");
+        } else {
+            switch (op) {
+                case INCLUDE:
+                    return Collections2.filter(fps, Predicates.and(filterPredicates));
+                case EXCLUDE:
+                    return Collections2.filter(fps, Predicates.not(Predicates.or(filterPredicates)));
+                default:
+                    throw new RuntimeException("Unsupported operation = " + op);
+            }
+        }
     }
 
 }
