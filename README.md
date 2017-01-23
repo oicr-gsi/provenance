@@ -1,4 +1,4 @@
-#provenance - a simple Java API for LIMS and analysis metadata
+#provenance - a Java API for LIMS and analysis metadata
 
 ##Overview
 
