@@ -1,5 +1,6 @@
 package ca.on.oicr.gsi.provenance;
 
+import ca.on.oicr.gsi.provenance.DefaultProvenanceClient.StatusReason;
 import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenance.Status;
@@ -10,9 +11,12 @@ import ca.on.oicr.gsi.provenance.model.SampleProvenance;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -138,13 +142,16 @@ public abstract class ProvenanceClientBase {
     }
 
     @Test
-    public void testSomeMethod() {
+    public void checkDefaultState() {
         Collection<FileProvenance> fps = provenanceClient.getFileProvenance();
         assertEquals(fps.size(), expectedFpsSize);
         Map<Status, Integer> s = getStatusCount(fps);
         assertEquals(s.get(Status.OKAY), Integer.valueOf(6));
         assertEquals(s.get(Status.STALE), Integer.valueOf(0));
         assertEquals(s.get(Status.ERROR), Integer.valueOf(0));
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.OKAY)), Collections.EMPTY_SET);
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.STALE)), Collections.EMPTY_SET);
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.ERROR)), Collections.EMPTY_SET);
     }
 
     @Test
@@ -156,6 +163,9 @@ public abstract class ProvenanceClientBase {
         assertEquals(s.get(Status.OKAY), Integer.valueOf(2));
         assertEquals(s.get(Status.STALE), Integer.valueOf(4));
         assertEquals(s.get(Status.ERROR), Integer.valueOf(0));
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.OKAY)), Collections.EMPTY_SET);
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.STALE)), ImmutableSet.of(StatusReason.PROVENANCE_VERSION_MISMATCH));
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.ERROR)), Collections.EMPTY_SET);
     }
 
     @Test
@@ -167,6 +177,9 @@ public abstract class ProvenanceClientBase {
         assertEquals(s.get(Status.OKAY), Integer.valueOf(2));
         assertEquals(s.get(Status.STALE), Integer.valueOf(4));
         assertEquals(s.get(Status.ERROR), Integer.valueOf(0));
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.OKAY)), Collections.EMPTY_SET);
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.STALE)), ImmutableSet.of(StatusReason.PROVENANCE_LAST_MODIFIED_MISMATCH));
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.ERROR)), Collections.EMPTY_SET);
     }
 
     @Test
@@ -178,6 +191,9 @@ public abstract class ProvenanceClientBase {
         assertEquals(s.get(Status.OKAY), Integer.valueOf(2));
         assertEquals(s.get(Status.STALE), Integer.valueOf(4));
         assertEquals(s.get(Status.ERROR), Integer.valueOf(0));
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.OKAY)), Collections.EMPTY_SET);
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.STALE)), ImmutableSet.of(StatusReason.PROVENANCE_VERSION_MISMATCH));
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.ERROR)), Collections.EMPTY_SET);
     }
 
     @Test
@@ -189,6 +205,9 @@ public abstract class ProvenanceClientBase {
         assertEquals(s.get(Status.OKAY), Integer.valueOf(2));
         assertEquals(s.get(Status.STALE), Integer.valueOf(4));
         assertEquals(s.get(Status.ERROR), Integer.valueOf(0));
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.OKAY)), Collections.EMPTY_SET);
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.STALE)), ImmutableSet.of(StatusReason.PROVENANCE_LAST_MODIFIED_MISMATCH));
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.ERROR)), Collections.EMPTY_SET);
     }
 
     @Test
@@ -200,6 +219,9 @@ public abstract class ProvenanceClientBase {
         assertEquals(s.get(Status.OKAY), Integer.valueOf(2));
         assertEquals(s.get(Status.STALE), Integer.valueOf(0));
         assertEquals(s.get(Status.ERROR), Integer.valueOf(4));
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.OKAY)), Collections.EMPTY_SET);
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.STALE)), Collections.EMPTY_SET);
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.ERROR)), ImmutableSet.of(StatusReason.PROVENANCE_MISSING));
     }
 
     @Test
@@ -211,6 +233,9 @@ public abstract class ProvenanceClientBase {
         assertEquals(s.get(Status.OKAY), Integer.valueOf(2));
         assertEquals(s.get(Status.STALE), Integer.valueOf(0));
         assertEquals(s.get(Status.ERROR), Integer.valueOf(4));
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.OKAY)), Collections.EMPTY_SET);
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.STALE)), Collections.EMPTY_SET);
+        assertEquals(getStatusReason(getRecordsWithStatus(fps, Status.ERROR)), ImmutableSet.of(StatusReason.PROVENANCE_MISSING));
     }
 
     @Test
@@ -249,9 +274,9 @@ public abstract class ProvenanceClientBase {
 
         Set<String> doesNotExist = Sets.newHashSet("does_not_exist");
         for (Entry<FileProvenanceFilter, Set<String>> e : filters.entrySet()) {
-            assertFalse(provenanceClient.getFileProvenance(ImmutableMap.of(e.getKey(), e.getValue())).isEmpty(), 
+            assertFalse(provenanceClient.getFileProvenance(ImmutableMap.of(e.getKey(), e.getValue())).isEmpty(),
                     "No results returned for filter [" + e.getKey() + "]. ");
-            assertTrue(provenanceClient.getFileProvenance(ImmutableMap.of(e.getKey(), doesNotExist)).isEmpty(), 
+            assertTrue(provenanceClient.getFileProvenance(ImmutableMap.of(e.getKey(), doesNotExist)).isEmpty(),
                     "Results returned for filter [" + e.getKey() + "]. ");
         }
 
@@ -316,4 +341,23 @@ public abstract class ProvenanceClientBase {
         return counts;
     }
 
+    private Collection<FileProvenance> getRecordsWithStatus(Collection<FileProvenance> fps, Status status) {
+        Collection<FileProvenance> fpsFiltered = new ArrayList<>();
+        for (FileProvenance fp : fps) {
+            if (status.equals(fp.getStatus())) {
+                fpsFiltered.add(fp);
+            }
+        }
+        return fpsFiltered;
+    }
+
+    private Set<StatusReason> getStatusReason(Collection<FileProvenance> fps) {
+        Set<StatusReason> statusReasons = new HashSet<>();
+        for (FileProvenance fp : fps) {
+            if (!fp.getStatusReason().isEmpty()) {
+                statusReasons.add(StatusReason.fromDescription(fp.getStatusReason()));
+            }
+        }
+        return statusReasons;
+    }
 }
