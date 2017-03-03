@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -233,6 +234,8 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             Map<String, Collection<AnalysisProvenance>> analysisProvenanceByProvider
     ) {
 
+        Joiner j = Joiner.on(",");
+
         //build file provenance
         List<FileProvenance> fps = new ArrayList<>();
         for (Entry<String, Collection<AnalysisProvenance>> e : analysisProvenanceByProvider.entrySet()) {
@@ -241,7 +244,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                 List<FileProvenanceFromAnalysisProvenance> tmp = new ArrayList<>();
                 boolean isSkipped = false;
                 Status status = Status.OKAY;
-                List<String> statusReasons = new ArrayList<>();
+                Set<StatusReason> statusReasons = EnumSet.noneOf(StatusReason.class);
 
                 for (IusLimsKey ik : ap.getIusLimsKeys()) {
 
@@ -253,7 +256,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                     DateTime limsKeyLastModified = null;
                     if (limsKey == null) {
                         status = Status.ERROR;
-                        statusReasons.add("Analysis provenance does not have a LimsKey reference");
+                        statusReasons.add(StatusReason.LIMS_KEY_MISSING);
                     } else {
                         limsKeyId = limsKey.getId();
                         limsKeyProvider = limsKey.getProvider();
@@ -275,23 +278,23 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                     if ((sp == null && lp == null)) {
                         //check that AP object joins either one SP or one LP object
                         status = Status.ERROR;
-                        statusReasons.add("Unable to determine sample or lane provenance");
+                        statusReasons.add(StatusReason.PROVENANCE_MISSING);
                         b = new FileProvenanceFromAnalysisProvenance();
                         b.setAnalysisProvenance(ap);
                     } else if (sp != null && lp != null) {
                         status = Status.ERROR;
-                        statusReasons.add("Sample and lane provenance have the same id");
+                        statusReasons.add(StatusReason.ID_CONFLICT);
                         b = new FileProvenanceFromAnalysisProvenance();
                         b.setAnalysisProvenance(ap);
                     } else if (sp != null) {
                         //check SP version and last modified matches what is set in LimsKey
                         if (sp.getVersion() == null || !sp.getVersion().equals(limsKeyVersion)) {
                             status = Status.STALE;
-                            statusReasons.add("Sample provenance version mismatch");
+                            statusReasons.add(StatusReason.PROVENANCE_VERSION_MISMATCH);
                         }
                         if (sp.getLastModified() == null || !sp.getLastModified().equals(limsKeyLastModified)) {
                             status = Status.STALE;
-                            statusReasons.add("Sample provenance last modified mismatch");
+                            statusReasons.add(StatusReason.PROVENANCE_LAST_MODIFIED_MISMATCH);
                         }
                         FileProvenanceFromSampleProvenance fpSp = new FileProvenanceFromSampleProvenance();
                         fpSp.sampleProvenance(sp);
@@ -309,11 +312,11 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         //check LP version and last modified matches what is set in LimsKey
                         if (lp.getVersion() == null || !lp.getVersion().equals(limsKeyVersion)) {
                             status = Status.STALE;
-                            statusReasons.add("Lane provenance version mismatch");
+                            statusReasons.add(StatusReason.PROVENANCE_VERSION_MISMATCH);
                         }
                         if (lp.getLastModified() == null || !lp.getLastModified().equals(limsKeyLastModified)) {
                             status = Status.STALE;
-                            statusReasons.add("Lane provenance last modified mismatch");
+                            statusReasons.add(StatusReason.PROVENANCE_LAST_MODIFIED_MISMATCH);
                         }
 
                         FileProvenanceFromLaneProvenance fpLp = new FileProvenanceFromLaneProvenance();
@@ -328,7 +331,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         }
                     } else {
                         status = Status.ERROR;
-                        statusReasons.add("Provenance client internal error");
+                        statusReasons.add(StatusReason.PROVENANCE_CLIENT_INTERNAL_ERROR);
                         b = new FileProvenanceFromAnalysisProvenance();
                         b.setAnalysisProvenance(ap);
                     }
@@ -339,7 +342,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         isSkipped = true;
                     }
 
-                    b.setStatusReason(Joiner.on(",").join(statusReasons));
+                    b.setStatusReason(j.join(statusReasons));
                     b.setIusLimsKeys(Arrays.asList(ik));
                     tmp.add(b);
                 }
@@ -574,6 +577,39 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                 default:
                     throw new RuntimeException("Unsupported operation = " + op);
             }
+        }
+    }
+
+    public enum StatusReason {
+        LIMS_KEY_MISSING("Analysis provenance does not have a LimsKey reference"),
+        PROVENANCE_MISSING("Unable to determine provenance record"),
+        ID_CONFLICT("Multiple provenance records with the same id detected"),
+        PROVENANCE_VERSION_MISMATCH("Provenance version mismatch"),
+        PROVENANCE_LAST_MODIFIED_MISMATCH("Provenance last modified mismatch"),
+        PROVENANCE_CLIENT_INTERNAL_ERROR("Internal error detected in provenance client");
+
+        private final String description;
+        private static final Map<String, StatusReason> descriptionToEnum = new HashMap<>();
+
+        static {
+            for (StatusReason sr : StatusReason.values()) {
+                if (descriptionToEnum.put(sr.toString(), sr) != null) {
+                    throw new RuntimeException("Duplicate StatusReason description");
+                };
+            }
+        }
+
+        StatusReason(String description) {
+            this.description = description;
+        }
+
+        public static StatusReason fromDescription(String description) {
+            return (descriptionToEnum.get(description));
+        }
+
+        @Override
+        public String toString() {
+            return description;
         }
     }
 
