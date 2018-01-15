@@ -1,5 +1,25 @@
 package ca.on.oicr.gsi.provenance;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.google.common.base.Stopwatch;
+
 import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenance.Status;
@@ -10,27 +30,6 @@ import ca.on.oicr.gsi.provenance.model.IusLimsKey;
 import ca.on.oicr.gsi.provenance.model.LaneProvenance;
 import ca.on.oicr.gsi.provenance.model.LimsKey;
 import ca.on.oicr.gsi.provenance.model.SampleProvenance;
-import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Sets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.joda.time.DateTime;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 /**
  *
@@ -222,9 +221,9 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
     @Override
     public Collection<FileProvenance> getFileProvenance() {
         return getFileProvenance(
-                getSampleProvenanceByProviderAndId(Collections.EMPTY_MAP),
-                getLaneProvenanceByProviderAndId(Collections.EMPTY_MAP),
-                getAnalysisProvenanceByProvider(Collections.EMPTY_MAP)
+                getSampleProvenanceByProviderAndId(Collections.<FileProvenanceFilter, Set<String>>emptyMap()),
+                getLaneProvenanceByProviderAndId(Collections.<FileProvenanceFilter, Set<String>>emptyMap()),
+                getAnalysisProvenanceByProvider(Collections.<FileProvenanceFilter, Set<String>>emptyMap())
         );
     }
 
@@ -233,8 +232,6 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             Map<String, Map<String, LaneProvenance>> laneProvenanceByProvider,
             Map<String, Collection<AnalysisProvenance>> analysisProvenanceByProvider
     ) {
-
-        Joiner j = Joiner.on(",");
 
         //build file provenance
         List<FileProvenance> fps = new ArrayList<>();
@@ -253,7 +250,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                     String limsKeyId = null;
                     String limsKeyProvider = null;
                     String limsKeyVersion = null;
-                    DateTime limsKeyLastModified = null;
+                    ZonedDateTime limsKeyLastModified = null;
                     if (limsKey == null) {
                         status = Status.ERROR;
                         statusReasons.add(StatusReason.LIMS_KEY_MISSING);
@@ -342,7 +339,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                         isSkipped = true;
                     }
 
-                    b.setStatusReason(j.join(statusReasons));
+                    b.setStatusReason(statusReasons.stream().map(StatusReason::toString).collect(Collectors.joining(",")));
                     b.setIusLimsKeys(Arrays.asList(ik));
                     tmp.add(b);
                 }
@@ -369,8 +366,8 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                 //for example: AP record linked to SP(A) and SP(B), filtering on A would result in FP(AP+SP(B))=ERROR
                 //getSampleProvenanceByProviderAndId(filters),
                 //getLaneProvenanceByProviderAndId(filters),
-                getSampleProvenanceByProviderAndId(Collections.EMPTY_MAP),
-                getLaneProvenanceByProviderAndId(Collections.EMPTY_MAP),
+                getSampleProvenanceByProviderAndId(Collections.<FileProvenanceFilter, Set<String>>emptyMap()),
+                getLaneProvenanceByProviderAndId(Collections.<FileProvenanceFilter, Set<String>>emptyMap()),
                 getAnalysisProvenanceByProvider(filters)
         );
 
@@ -388,196 +385,28 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
     }
 
     public enum Operation {
-        INCLUDE, EXCLUDE;
+        INCLUDE {
+			@Override
+			public boolean match(FileProvenance f, Stream<Predicate<FileProvenance>> filters) {
+				return filters.allMatch(p->p.test(f));
+			}
+		}, EXCLUDE {
+			@Override
+			public boolean match(FileProvenance f, Stream<Predicate<FileProvenance>> filters) {
+				return filters.noneMatch(p -> p.test(f));
+			}
+		};
+    	public abstract boolean match(FileProvenance f, Stream<Predicate<FileProvenance>> filters);
     }
 
     protected Collection<FileProvenance> applyFileProvenanceFilters(Operation op, Collection<FileProvenance> fps, final Map<FileProvenanceFilter, Set<String>> filters) {
 
-        List<Predicate<FileProvenance>> filterPredicates = new ArrayList<>();
-        for (FileProvenanceFilter fpf : FileProvenanceFilter.values()) {
-            switch (fpf) {
-                case file:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return vals.contains(Objects.toString(f.getFileSWID()));
-                            }
-                        });
-                    }
-                    break;
-                case file_meta_type:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return vals.contains(f.getFileMetaType());
-                            }
-                        });
-                    }
-                    break;
-                case ius:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return CollectionUtils.containsAny(vals, Sets.newHashSet(f.getIusSWIDs()));
-                            }
-                        });
-                    }
-                    break;
-                case lane:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return CollectionUtils.containsAny(vals, f.getLaneNames());
-                            }
-                        });
-                    }
-                    break;
-                case processing:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return vals.contains(Objects.toString(f.getProcessingSWID()));
-                            }
-                        });
-                    }
-                    break;
-                case processing_status:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return vals.contains(f.getProcessingStatus());
-                            }
-                        });
-                    }
-                    break;
-                case root_sample:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return CollectionUtils.containsAny(vals, f.getRootSampleNames());
-                            }
-                        });
-                    }
-                    break;
-                case sample:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return CollectionUtils.containsAny(vals, f.getSampleNames());
-                            }
-                        });
-                    }
-                    break;
-                case sequencer_run:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return CollectionUtils.containsAny(vals, f.getSequencerRunNames());
-                            }
-                        });
-                    }
-                    break;
-                case sequencer_run_platform_model:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return CollectionUtils.containsAny(vals, f.getSequencerRunPlatformNames());
-                            }
-                        });
-                    }
-                    break;
-                case skip:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return vals.contains(f.getSkip());
-                            }
-                        });
-                    }
-                    break;
-                case study:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return CollectionUtils.containsAny(vals, f.getStudyTitles());
-                            }
-                        });
-                    }
-                    break;
-                case workflow:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return vals.contains(Objects.toString(f.getWorkflowSWID()));
-                            }
-                        });
-                    }
-                    break;
-                case workflow_run:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return vals.contains(Objects.toString(f.getWorkflowRunSWID()));
-                            }
-                        });
-                    }
-                    break;
-                case workflow_run_status:
-                    if (!CollectionUtils.isEmpty(filters.get(fpf))) {
-                        final Set<String> vals = filters.get(fpf);
-                        filterPredicates.add(new Predicate<FileProvenance>() {
-                            @Override
-                            public boolean apply(FileProvenance f) {
-                                return vals.contains(f.getWorkflowRunStatus());
-                            }
-                        });
-                    }
-                    break;
-                default:
-                    throw new RuntimeException("Implement method for filter: " + fpf.name());
-            }
-        }
+    	List<Predicate<FileProvenance>> filterset = filters.entrySet().stream().<Predicate<FileProvenance>>map(entry -> f -> entry.getKey().checkFilter(f, entry.getValue())).collect(Collectors.toList());
 
         if (null == op) {
             throw new RuntimeException("null filter operation");
-        } else {
-            switch (op) {
-                case INCLUDE:
-                    return Collections2.filter(fps, Predicates.and(filterPredicates));
-                case EXCLUDE:
-                    return Collections2.filter(fps, Predicates.not(Predicates.or(filterPredicates)));
-                default:
-                    throw new RuntimeException("Unsupported operation = " + op);
-            }
         }
+        return fps.stream().filter(f -> op.match(f, filterset.stream())).collect(Collectors.toList());
     }
 
     public enum StatusReason {
@@ -612,5 +441,6 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             return description;
         }
     }
+    
 
 }

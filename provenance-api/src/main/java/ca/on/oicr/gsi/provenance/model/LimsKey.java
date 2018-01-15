@@ -1,6 +1,6 @@
 package ca.on.oicr.gsi.provenance.model;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 /**
  *
@@ -14,6 +14,6 @@ public interface LimsKey {
 
     public String getVersion();
 
-    public DateTime getLastModified();
+    public ZonedDateTime getLastModified();
 
 }

@@ -1,14 +1,12 @@
 package ca.on.oicr.gsi.provenance.model;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 /**
  *
@@ -48,93 +46,93 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
 
     @Override
     public Collection<String> getStudyTitles() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     public SortedMap<String, SortedSet<String>> getStudyAttributes() {
-        return MapUtils.EMPTY_SORTED_MAP;
+        return Collections.emptySortedMap();
     }
 
     @Override
     public Collection<String> getRootSampleNames() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     public Collection<String> getParentSampleNames() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     public Collection<String> getParentSampleOrganismIDs() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     @Deprecated
     public SortedMap<String, SortedSet<String>> getParentSampleAttributes() {
-        return MapUtils.EMPTY_SORTED_MAP;
+        return Collections.emptySortedMap();
     }
 
     @Override
     public Collection<String> getSampleNames() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     public Collection<String> getSampleOrganismIDs() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     public Collection<String> getSampleOrganismCodes() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     public SortedMap<String, SortedSet<String>> getSampleAttributes() {
-        return MapUtils.EMPTY_SORTED_MAP;
+        return Collections.emptySortedMap();
     }
 
     @Override
     public Collection<String> getSequencerRunNames() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     public SortedMap<String, SortedSet<String>> getSequencerRunAttributes() {
-        return MapUtils.EMPTY_SORTED_MAP;
+        return Collections.emptySortedMap();
 
     }
 
     @Override
     public Collection<String> getSequencerRunPlatformIDs() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
 
     }
 
     @Override
     public Collection<String> getSequencerRunPlatformNames() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
 
     }
 
     @Override
     public Collection<String> getLaneNames() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
 
     }
 
     @Override
     public Collection<String> getLaneNumbers() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
 
     }
 
     @Override
     public SortedMap<String, SortedSet<String>> getLaneAttributes() {
-        return MapUtils.EMPTY_SORTED_MAP;
+        return Collections.emptySortedMap();
     }
 
     @Override
@@ -267,15 +265,13 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
     }
 
     @Override
-    public DateTime getLastModified() {
-        DateTime lastModified = null;
-
-        lastModified = ObjectUtils.max(lastModified, analysisProvenance.getLastModified());
+    public ZonedDateTime getLastModified() {
+        ZonedDateTime lastModified =  analysisProvenance.getLastModified();
 
         if (lastModified == null) {
             return null;
         } else {
-            return lastModified.toDateTime(DateTimeZone.UTC);
+            return lastModified.withZoneSameInstant(ZoneId.of("Z"));
         }
     }
 
@@ -298,7 +294,7 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
 
     @Override
     public Collection<String> getIusTags() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override

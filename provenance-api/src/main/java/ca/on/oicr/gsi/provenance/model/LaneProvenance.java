@@ -1,8 +1,8 @@
 package ca.on.oicr.gsi.provenance.model;
 
+import java.time.ZonedDateTime;
 import java.util.SortedMap;
 import java.util.SortedSet;
-import org.joda.time.DateTime;
 
 /**
  *
@@ -24,6 +24,6 @@ public interface LaneProvenance extends LimsProvenance {
 
     public String getLaneProvenanceId();
 
-    public DateTime getCreatedDate();
+    public ZonedDateTime getCreatedDate();
 
 }

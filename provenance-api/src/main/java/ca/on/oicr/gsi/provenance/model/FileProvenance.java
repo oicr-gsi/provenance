@@ -1,9 +1,9 @@
 package ca.on.oicr.gsi.provenance.model;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.SortedMap;
 import java.util.SortedSet;
-import org.joda.time.DateTime;
 
 /**
  *
@@ -92,7 +92,7 @@ public interface FileProvenance {
 
     public String getSkip();
 
-    public DateTime getLastModified();
+    public ZonedDateTime getLastModified();
 
     public Collection<IusLimsKey> getIusLimsKeys();
 
