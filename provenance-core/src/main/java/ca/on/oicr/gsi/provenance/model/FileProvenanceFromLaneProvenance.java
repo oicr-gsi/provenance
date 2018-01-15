@@ -7,7 +7,6 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import org.apache.commons.collections4.MapUtils;
 
 /**
  *
@@ -31,53 +30,53 @@ public class FileProvenanceFromLaneProvenance extends FileProvenanceFromAnalysis
 
     @Override
     public Collection<String> getStudyTitles() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     public SortedMap<String, SortedSet<String>> getStudyAttributes() {
-        return MapUtils.EMPTY_SORTED_MAP;
+        return Collections.emptySortedMap();
     }
 
     @Override
     public Collection<String> getRootSampleNames() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     public Collection<String> getParentSampleNames() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     public Collection<String> getParentSampleOrganismIDs() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     @Deprecated
     public SortedMap<String, SortedSet<String>> getParentSampleAttributes() {
-        return MapUtils.EMPTY_SORTED_MAP;
+        return Collections.emptySortedMap();
     }
 
     @Override
     public Collection<String> getSampleNames() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     public Collection<String> getSampleOrganismIDs() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     public Collection<String> getSampleOrganismCodes() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
     public SortedMap<String, SortedSet<String>> getSampleAttributes() {
-        return MapUtils.EMPTY_SORTED_MAP;
+        return Collections.emptySortedMap();
     }
 
     @Override

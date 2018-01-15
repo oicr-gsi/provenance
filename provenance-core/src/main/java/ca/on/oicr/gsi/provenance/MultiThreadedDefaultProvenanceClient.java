@@ -1,26 +1,26 @@
 package ca.on.oicr.gsi.provenance;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.google.common.base.Stopwatch;
+
 import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
 import ca.on.oicr.gsi.provenance.model.FileProvenance;
 import ca.on.oicr.gsi.provenance.model.LaneProvenance;
 import ca.on.oicr.gsi.provenance.model.SampleProvenance;
-import com.google.common.base.Stopwatch;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 /**
  *
@@ -28,203 +28,117 @@ import org.apache.logging.log4j.LogManager;
  */
 public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClient {
 
-    private ExecutorService es;
-    private CompletionService cs;
-    private final Logger log = LogManager.getLogger(MultiThreadedDefaultProvenanceClient.class);
+	private ExecutorService es;
+	private final Logger log = LogManager.getLogger(MultiThreadedDefaultProvenanceClient.class);
 
-    private Future<Map<String, Map<String, SampleProvenance>>> getSampleProvenanceFutureByProvider(final Map<FileProvenanceFilter, Set<String>> filters) throws InterruptedException {
-        final CompletionService<Map<String, Map<String, SampleProvenance>>> compService = new ExecutorCompletionService(es);
+	private <T, TP> void getByProvider(final Map<String, TP> providers,
+			final Map<FileProvenanceFilter, Set<String>> filters, Executor executor, Map<String, Map<String, T>> output,
+			Function<TP, Collection<T>> getProvenance,
+			BiFunction<TP, Map<FileProvenanceFilter, Set<String>>, Collection<T>> getProvenanceWithFilter,
+			Function<T, String> getId) throws InterruptedException {
 
-        final List<Future<Map<String, Map<String, SampleProvenance>>>> tasks = new ArrayList<>();
-        for (Map.Entry<String, SampleProvenanceProvider> e : sampleProvenanceProviders.entrySet()) {
-            final String provider = e.getKey();
-            final SampleProvenanceProvider spp = e.getValue();
+		for (Map.Entry<String, TP> e : providers.entrySet()) {
+			final String provider = e.getKey();
+			final TP pp = e.getValue();
 
-            Callable<Map<String, Map<String, SampleProvenance>>> c = new Callable<Map<String, Map<String, SampleProvenance>>>() {
-                @Override
-                public Map<String, Map<String, SampleProvenance>> call() {
-                    Stopwatch sw = Stopwatch.createStarted();
-                    log.info("Provider = [{}] started getSampleProvenance()", provider);
-                    Collection<SampleProvenance> sps;
-                    if (filters == null || filters.isEmpty()) {
-                        sps = spp.getSampleProvenance();
-                    } else {
-                        sps = spp.getSampleProvenance(filters);
-                    }
-                    log.info("Provider = [{}] completed getSampleProvenance() in {}", provider, sw.toString());
+			executor.execute(() -> {
+				Stopwatch sw = Stopwatch.createStarted();
+				log.info("Provider = [{}] started get provenance", provider);
+				Collection<T> ps;
+				if (filters == null || filters.isEmpty()) {
+					ps = getProvenance.apply(pp);
+				} else {
+					ps = getProvenanceWithFilter.apply(pp, filters);
+				}
+				log.info("Provider = [{}] completed get provenance in {}", provider, sw.toString());
 
-                    Map<String, SampleProvenance> spsById = new HashMap<>();
-                    for (SampleProvenance sp : sps) {
-                        if (spsById.put(sp.getProvenanceId(), sp) != null) {
-                            throw new RuntimeException("Duplicate sample provenance ID = [" + sp.getProvenanceId() + "] from provider = [" + provider + "]");
-                        }
-                    }
+				Map<String, T> psById = new HashMap<>();
+				for (T p : ps) {
+					if (psById.put(getId.apply(p), p) != null) {
+						throw new RuntimeException("Duplicate provenance ID = [" + getId.apply(p)
+								+ "] from provider = [" + provider + "]");
+					}
+				}
 
-                    Map<String, Map<String, SampleProvenance>> m = new HashMap<>();
-                    m.put(provider, spsById);
-                    return m;
-                }
-            };
-            tasks.add(compService.submit(c));
-        }
+				output.put(provider, psById);
+			});
+		}
+	}
 
-        Callable<Map<String, Map<String, SampleProvenance>>> collect = new Callable<Map<String, Map<String, SampleProvenance>>>() {
-            @Override
-            public Map<String, Map<String, SampleProvenance>> call() throws InterruptedException, ExecutionException {
-                Map<String, Map<String, SampleProvenance>> spsByProvider = new HashMap<>();
+	private void getSampleProvenanceFutureByProvider(final Map<FileProvenanceFilter, Set<String>> filters,
+			Executor executor, Map<String, Map<String, SampleProvenance>> output) throws InterruptedException {
+		getByProvider(sampleProvenanceProviders, filters, executor, output,
+				SampleProvenanceProvider::getSampleProvenance, SampleProvenanceProvider::getSampleProvenance,
+				SampleProvenance::getProvenanceId);
+	}
 
-                while (tasks.size() > 0) {
-                    Future<Map<String, Map<String, SampleProvenance>>> completedTask = compService.take();
-                    tasks.remove(completedTask);
-                    Map<String, Map<String, SampleProvenance>> m = completedTask.get();
-                    spsByProvider.putAll(m);
-                }
+	private void getLaneProvenanceFutureByProvider(final Map<FileProvenanceFilter, Set<String>> filters,
+			Executor executor, Map<String, Map<String, LaneProvenance>> output) throws InterruptedException {
+		getByProvider(laneProvenanceProviders, filters, executor, output,
+				LaneProvenanceProvider::getLaneProvenance, LaneProvenanceProvider::getLaneProvenance,
+				LaneProvenance::getProvenanceId);
+	}
 
-                return spsByProvider;
-            }
-        };
+	private void getAnalysisProvenanceFutureByProvider(final Map<FileProvenanceFilter, Set<String>> filters,
+			Executor executor, Map<String, Collection<AnalysisProvenance>> output) throws InterruptedException {
+		for (Map.Entry<String, AnalysisProvenanceProvider> e : analysisProvenanceProviders.entrySet()) {
+			final String provider = e.getKey();
+			final AnalysisProvenanceProvider app = e.getValue();
 
-        return cs.submit(collect);
-    }
+			executor.execute(() -> {
+				Stopwatch sw = Stopwatch.createStarted();
+				log.info("Provider = [{}] started getAnalysisProvenance()", provider);
+				Collection<AnalysisProvenance> aps;
+				if (filters == null || filters.isEmpty()) {
+					aps = app.getAnalysisProvenance();
+				} else {
+					aps = app.getAnalysisProvenance(filters);
+				}
+				log.info("Provider = [{}] completed getAnalysisProvenance() in {}", provider, sw.toString());
 
-    private Future<Map<String, Map<String, LaneProvenance>>> getLaneProvenanceFutureByProvider(final Map<FileProvenanceFilter, Set<String>> filters) throws InterruptedException {
-        final CompletionService<Map<String, Map<String, LaneProvenance>>> compService = new ExecutorCompletionService(es);
+				output.put(provider, aps);
+			});
+		}
+	}
 
-        final List<Future<Map<String, Map<String, LaneProvenance>>>> tasks = new ArrayList<>();
-        for (Map.Entry<String, LaneProvenanceProvider> e : laneProvenanceProviders.entrySet()) {
-            final String provider = e.getKey();
-            final LaneProvenanceProvider lpp = e.getValue();
+	@Override
+	public Collection<FileProvenance> getFileProvenance() {
+		return getFileProvenance(Collections.<FileProvenanceFilter, Set<String>>emptyMap());
+	}
 
-            Callable<Map<String, Map<String, LaneProvenance>>> c = new Callable<Map<String, Map<String, LaneProvenance>>>() {
-                @Override
-                public Map<String, Map<String, LaneProvenance>> call() throws Exception {
-                    Stopwatch sw = Stopwatch.createStarted();
-                    log.info("Provider = [{}] started getLaneProvenance()", provider);
-                    Collection<LaneProvenance> lps;
-                    if (filters == null || filters.isEmpty()) {
-                        lps = lpp.getLaneProvenance();
-                    } else {
-                        lps = lpp.getLaneProvenance(filters);
-                    }
-                    log.info("Provider = [{}] completed getLaneProvenance() in {}", provider, sw.toString());
+	@Override
+	public Collection<FileProvenance> getFileProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+		es = Executors.newFixedThreadPool(8);
+		try {
+			// get all sample and lane provenance and filter after joining with AP
+			// if this is not done, there could be AP records that pass filters and do not
+			// have an associated SP or LP
+			// for example: AP record linked to SP(A) and SP(B), filtering on A would result
+			// in FP(AP+SP(B))=ERROR
+			// getSampleProvenanceByProviderAndId(filters),
+			// getLaneProvenanceByProviderAndId(filters),
+			// Future<Map<String, Map<String, SampleProvenance>>> spsByProvider =
+			// getSampleProvenanceFutureByProvider(filters);
+			// Future<Map<String, Map<String, LaneProvenance>>> lpsByProvider =
+			// getLaneProvenanceFutureByProvider(filters);
+			Map<String, Map<String, SampleProvenance>> spsByProvider = new HashMap<>();
+			getSampleProvenanceFutureByProvider(Collections.<FileProvenanceFilter, Set<String>>emptyMap(), es,
+					spsByProvider);
+			Map<String, Map<String, LaneProvenance>> lpsByProvider = new HashMap<>();
+			getLaneProvenanceFutureByProvider(Collections.<FileProvenanceFilter, Set<String>>emptyMap(), es,
+					lpsByProvider);
+			Map<String, Collection<AnalysisProvenance>> apsByProvider = new HashMap<>();
+			getAnalysisProvenanceFutureByProvider(filters, es, apsByProvider);
 
-                    Map<String, LaneProvenance> lpsById = new HashMap<>();
-                    for (LaneProvenance lp : lps) {
-                        if (lpsById.put(lp.getProvenanceId(), lp) != null) {
-                            throw new RuntimeException("Duplicate lane provenance ID = [" + lp.getProvenanceId() + "] from provider = [" + provider + "]");
-                        }
-                    }
+			es.shutdown();
+			es.awaitTermination(1, TimeUnit.HOURS);
 
-                    Map<String, Map<String, LaneProvenance>> m = new HashMap<>();
-                    m.put(provider, lpsById);
-                    return m;
-                }
-            };
-            tasks.add(compService.submit(c));
-        }
-
-        Callable<Map<String, Map<String, LaneProvenance>>> collect = new Callable<Map<String, Map<String, LaneProvenance>>>() {
-            @Override
-            public Map<String, Map<String, LaneProvenance>> call() throws InterruptedException, ExecutionException {
-                Map<String, Map<String, LaneProvenance>> lpsByProvider = new HashMap<>();
-
-                while (tasks.size() > 0) {
-                    Future<Map<String, Map<String, LaneProvenance>>> completedTask = compService.take();
-                    tasks.remove(completedTask);
-                    Map<String, Map<String, LaneProvenance>> m = completedTask.get();
-                    lpsByProvider.putAll(m);
-                }
-
-                return lpsByProvider;
-            }
-        };
-
-        return cs.submit(collect);
-    }
-
-    private Future<Map<String, Collection<AnalysisProvenance>>> getAnalysisProvenanceFutureByProvider(final Map<FileProvenanceFilter, Set<String>> filters) throws InterruptedException {
-        final CompletionService<Map<String, Collection<AnalysisProvenance>>> compService = new ExecutorCompletionService(es);
-
-        final List<Future<Map<String, Collection<AnalysisProvenance>>>> tasks = new ArrayList<>();
-        for (Map.Entry<String, AnalysisProvenanceProvider> e : analysisProvenanceProviders.entrySet()) {
-            final String provider = e.getKey();
-            final AnalysisProvenanceProvider app = e.getValue();
-
-            Callable<Map<String, Collection<AnalysisProvenance>>> c = new Callable<Map<String, Collection<AnalysisProvenance>>>() {
-                @Override
-                public Map<String, Collection<AnalysisProvenance>> call() {
-                    Stopwatch sw = Stopwatch.createStarted();
-                    log.info("Provider = [{}] started getAnalysisProvenance()", provider);
-                    Collection<AnalysisProvenance> aps;
-                    if (filters == null || filters.isEmpty()) {
-                        aps = app.getAnalysisProvenance();
-                    } else {
-                        aps = app.getAnalysisProvenance(filters);
-                    }
-                    log.info("Provider = [{}] completed getAnalysisProvenance() in {}", provider, sw.toString());
-
-                    Map<String, Collection<AnalysisProvenance>> m = new HashMap<>();
-                    m.put(provider, aps);
-                    return m;
-                }
-            };
-            tasks.add(compService.submit(c));
-        }
-
-        Callable<Map<String, Collection<AnalysisProvenance>>> collect = new Callable<Map<String, Collection<AnalysisProvenance>>>() {
-            @Override
-            public Map<String, Collection<AnalysisProvenance>> call() throws InterruptedException, ExecutionException {
-                Map<String, Collection<AnalysisProvenance>> apsByProvider = new HashMap<>();
-
-                while (tasks.size() > 0) {
-                    Future<Map<String, Collection<AnalysisProvenance>>> completedTask = compService.take();
-                    tasks.remove(completedTask);
-                    Map<String, Collection<AnalysisProvenance>> m = completedTask.get();
-                    apsByProvider.putAll(m);
-                }
-
-                return apsByProvider;
-            }
-
-        };
-
-        return cs.submit(collect);
-    }
-
-    @Override
-    public Collection<FileProvenance> getFileProvenance() {
-        return getFileProvenance(Collections.EMPTY_MAP);
-    }
-
-    @Override
-    public Collection<FileProvenance> getFileProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
-        es = Executors.newFixedThreadPool(8);
-        cs = new ExecutorCompletionService(es);
-        try {
-            //get all sample and lane provenance and filter after joining with AP
-            //if this is not done, there could be AP records that pass filters and do not have an associated SP or LP
-            //for example: AP record linked to SP(A) and SP(B), filtering on A would result in FP(AP+SP(B))=ERROR
-            //getSampleProvenanceByProviderAndId(filters),
-            //getLaneProvenanceByProviderAndId(filters),
-            //Future<Map<String, Map<String, SampleProvenance>>> spsByProvider = getSampleProvenanceFutureByProvider(filters);
-            //Future<Map<String, Map<String, LaneProvenance>>> lpsByProvider = getLaneProvenanceFutureByProvider(filters);
-            Future<Map<String, Map<String, SampleProvenance>>> spsByProvider = getSampleProvenanceFutureByProvider(Collections.EMPTY_MAP);
-            Future<Map<String, Map<String, LaneProvenance>>> lpsByProvider = getLaneProvenanceFutureByProvider(Collections.EMPTY_MAP);
-            Future<Map<String, Collection<AnalysisProvenance>>> apsByProvider = getAnalysisProvenanceFutureByProvider(filters);
-            int aggregationTasksRemaining = 3;
-
-            while (aggregationTasksRemaining > 0) {
-                Future f = cs.take();
-                aggregationTasksRemaining--;
-                f.get();
-            }
-
-            return applyFileProvenanceFilters(getFileProvenance(spsByProvider.get(), lpsByProvider.get(), apsByProvider.get()), filters);
-        } catch (ExecutionException | InterruptedException ex) {
-            throw new RuntimeException(ex);
-        } finally {
-            es.shutdownNow();
-        }
-    }
+			return applyFileProvenanceFilters(getFileProvenance(spsByProvider, lpsByProvider, apsByProvider), filters);
+		} catch (InterruptedException ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			es.shutdownNow();
+		}
+	}
 
 }

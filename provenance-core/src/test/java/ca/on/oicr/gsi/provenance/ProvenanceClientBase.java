@@ -1,16 +1,12 @@
 package ca.on.oicr.gsi.provenance;
 
-import ca.on.oicr.gsi.provenance.DefaultProvenanceClient.StatusReason;
-import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
-import ca.on.oicr.gsi.provenance.model.FileProvenance;
-import ca.on.oicr.gsi.provenance.model.FileProvenance.Status;
-import ca.on.oicr.gsi.provenance.model.IusLimsKey;
-import ca.on.oicr.gsi.provenance.model.LaneProvenance;
-import ca.on.oicr.gsi.provenance.model.LimsKey;
-import ca.on.oicr.gsi.provenance.model.SampleProvenance;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
+
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,16 +16,24 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.joda.time.DateTime;
-import static org.mockito.Matchers.anyMap;
+
 import org.mockito.Mockito;
-import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+
+import ca.on.oicr.gsi.provenance.DefaultProvenanceClient.StatusReason;
+import ca.on.oicr.gsi.provenance.model.AnalysisProvenance;
+import ca.on.oicr.gsi.provenance.model.FileProvenance;
+import ca.on.oicr.gsi.provenance.model.FileProvenance.Status;
+import ca.on.oicr.gsi.provenance.model.IusLimsKey;
+import ca.on.oicr.gsi.provenance.model.LaneProvenance;
+import ca.on.oicr.gsi.provenance.model.LimsKey;
+import ca.on.oicr.gsi.provenance.model.SampleProvenance;
 
 /**
  *
@@ -80,7 +84,7 @@ public abstract class ProvenanceClientBase {
     @BeforeMethod
     public void data() {
         String limsProvider = "test";
-        DateTime limsLastModified = DateTime.now();
+        ZonedDateTime limsLastModified = ZonedDateTime.now();
 
         sp1 = Mockito.mock(SampleProvenance.class);
         when(sp1.getProvenanceId()).thenReturn("1");
@@ -170,7 +174,7 @@ public abstract class ProvenanceClientBase {
 
     @Test
     public void sampleProvenanceLastModifiedChangeCheckStatusIsStale() {
-        when(sp1.getLastModified()).thenReturn(DateTime.parse("2000-01-01T00:00:00Z"));
+        when(sp1.getLastModified()).thenReturn(ZonedDateTime.parse("2000-01-01T00:00:00Z"));
         Collection<FileProvenance> fps = provenanceClient.getFileProvenance();
         assertEquals(fps.size(), expectedFpsSize);
         Map<Status, Integer> s = getStatusCount(fps);
@@ -198,7 +202,7 @@ public abstract class ProvenanceClientBase {
 
     @Test
     public void laneProvenanceLastModifiedChangeCheckStatusIsStale() {
-        when(lp.getLastModified()).thenReturn(DateTime.parse("2000-01-01T00:00:00Z"));
+        when(lp.getLastModified()).thenReturn(ZonedDateTime.parse("2000-01-01T00:00:00Z"));
         Collection<FileProvenance> fps = provenanceClient.getFileProvenance();
         assertEquals(fps.size(), expectedFpsSize);
         Map<Status, Integer> s = getStatusCount(fps);
