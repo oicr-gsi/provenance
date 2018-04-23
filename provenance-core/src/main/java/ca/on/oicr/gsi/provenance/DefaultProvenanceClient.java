@@ -289,7 +289,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                             status = Status.STALE;
                             statusReasons.add(StatusReason.PROVENANCE_VERSION_MISMATCH);
                         }
-                        if (sp.getLastModified() == null || !sp.getLastModified().equals(limsKeyLastModified)) {
+                        if (sp.getLastModified() == null || !sp.getLastModified().isEqual(limsKeyLastModified)) {
                             status = Status.STALE;
                             statusReasons.add(StatusReason.PROVENANCE_LAST_MODIFIED_MISMATCH);
                         }
@@ -311,7 +311,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
                             status = Status.STALE;
                             statusReasons.add(StatusReason.PROVENANCE_VERSION_MISMATCH);
                         }
-                        if (lp.getLastModified() == null || !lp.getLastModified().equals(limsKeyLastModified)) {
+                        if (lp.getLastModified() == null || !lp.getLastModified().isEqual(limsKeyLastModified)) {
                             status = Status.STALE;
                             statusReasons.add(StatusReason.PROVENANCE_LAST_MODIFIED_MISMATCH);
                         }
