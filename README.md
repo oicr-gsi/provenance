@@ -1,6 +1,6 @@
-#provenance - a Java API for LIMS and analysis metadata
+# provenance - a Java API for LIMS and analysis metadata
 
-##Overview
+## Overview
 
 The API model consists of a minimal set of LIMS metadata objects:
 
@@ -16,12 +16,12 @@ And a linking object that can be used to link analysis metadata to its LIMS meta
 Finally, using the above API model, LIMS and analysis metadata can be combined into a composite object that describes everything about a file:
 * [file provenance](provenance-api/src/main/java/ca/on/oicr/gsi/provenance/model/FileProvenance.java)
 
-##Building
+## Building
 
 ```
 mvn clean install
 ```
 
-##Support
+## Support
 
 For support, please file an issue on the Github project or send an email to gsi@oicr.on.ca .

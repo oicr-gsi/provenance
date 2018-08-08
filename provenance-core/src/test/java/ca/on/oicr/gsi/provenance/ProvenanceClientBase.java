@@ -62,9 +62,8 @@ public abstract class ProvenanceClientBase {
             Map<String, SampleProvenanceProvider> sampleProvenanceProviders,
             Map<String, LaneProvenanceProvider> laneProvenanceProviders);
 
-    @BeforeClass
+    @BeforeMethod
     public void setup() {
-
         Map<String, AnalysisProvenanceProvider> apps = new HashMap<>();
         app = Mockito.mock(AnalysisProvenanceProvider.class);
         apps.put("test", app);
@@ -79,10 +78,6 @@ public abstract class ProvenanceClientBase {
 
         provenanceClient = getProvenanceClient(apps, spps, lpps);
 
-    }
-
-    @BeforeMethod
-    public void data() {
         String limsProvider = "test";
         ZonedDateTime limsLastModified = ZonedDateTime.now();
 
@@ -332,6 +327,24 @@ public abstract class ProvenanceClientBase {
                     "Record count for exclude filter [" + e.getKey() + "]");
         }
 
+    }
+
+    @Test(expectedExceptions = Exception.class)
+    public void testGetSampleProvenanceFailure() {
+        when(spp.getSampleProvenance()).thenThrow(new RuntimeException());
+        provenanceClient.getFileProvenance();
+    }
+
+    @Test(expectedExceptions = Exception.class)
+    public void testGetLaneProvenanceFailure() {
+        when(lpp.getLaneProvenance()).thenThrow(new RuntimeException());
+        provenanceClient.getFileProvenance();
+    }
+
+    @Test(expectedExceptions = Exception.class)
+    public void testGetAnalysisProvenanceFailure() {
+        when(app.getAnalysisProvenance()).thenThrow(new RuntimeException());
+        provenanceClient.getFileProvenance();
     }
 
     private Map<Status, Integer> getStatusCount(Collection<FileProvenance> fps) {

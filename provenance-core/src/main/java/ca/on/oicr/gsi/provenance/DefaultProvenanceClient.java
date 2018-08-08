@@ -386,22 +386,23 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
 
     public enum Operation {
         INCLUDE {
-			@Override
-			public boolean match(FileProvenance f, Stream<Predicate<FileProvenance>> filters) {
-				return filters.allMatch(p->p.test(f));
-			}
-		}, EXCLUDE {
-			@Override
-			public boolean match(FileProvenance f, Stream<Predicate<FileProvenance>> filters) {
-				return filters.noneMatch(p -> p.test(f));
-			}
-		};
-    	public abstract boolean match(FileProvenance f, Stream<Predicate<FileProvenance>> filters);
+            @Override
+            public boolean match(FileProvenance f, Stream<Predicate<FileProvenance>> filters) {
+                return filters.allMatch(p -> p.test(f));
+            }
+        }, EXCLUDE {
+            @Override
+            public boolean match(FileProvenance f, Stream<Predicate<FileProvenance>> filters) {
+                return filters.noneMatch(p -> p.test(f));
+            }
+        };
+
+        public abstract boolean match(FileProvenance f, Stream<Predicate<FileProvenance>> filters);
     }
 
     protected Collection<FileProvenance> applyFileProvenanceFilters(Operation op, Collection<FileProvenance> fps, final Map<FileProvenanceFilter, Set<String>> filters) {
 
-    	List<Predicate<FileProvenance>> filterset = filters.entrySet().stream().<Predicate<FileProvenance>>map(entry -> f -> entry.getKey().checkFilter(f, entry.getValue())).collect(Collectors.toList());
+        List<Predicate<FileProvenance>> filterset = filters.entrySet().stream().<Predicate<FileProvenance>>map(entry -> f -> entry.getKey().checkFilter(f, entry.getValue())).collect(Collectors.toList());
 
         if (null == op) {
             throw new RuntimeException("null filter operation");
@@ -441,6 +442,5 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             return description;
         }
     }
-    
 
 }

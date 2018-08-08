@@ -266,7 +266,7 @@ public class FileProvenanceFromAnalysisProvenance implements FileProvenance {
 
     @Override
     public ZonedDateTime getLastModified() {
-        ZonedDateTime lastModified =  analysisProvenance.getLastModified();
+        ZonedDateTime lastModified = analysisProvenance.getLastModified();
 
         if (lastModified == null) {
             return null;
