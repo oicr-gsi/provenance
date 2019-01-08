@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ import ca.on.oicr.gsi.provenance.model.SampleProvenance;
  *
  * @author mlaszloffy
  */
-public class DefaultProvenanceClient implements ExtendedProvenanceClient {
+public class DefaultProvenanceClient implements ExtendedProvenanceClient, AutoCloseable {
 
     protected final HashMap<String, AnalysisProvenanceProvider> analysisProvenanceProviders;
     protected final HashMap<String, SampleProvenanceProvider> sampleProvenanceProviders;
@@ -442,5 +443,25 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient {
             return description;
         }
     }
+
+	@Override
+	public void close() throws Exception {
+		final List<Exception> exceptions = Stream
+				.<Collection<? extends AutoCloseable>>of(sampleProvenanceProviders.values(),
+						laneProvenanceProviders.values(), analysisProvenanceProviders.values())
+				.flatMap(Collection::stream).map(c -> {
+					try {
+						c.close();
+						return null;
+					} catch (Exception e) {
+						return e;
+					}
+				}).filter(Objects::nonNull).collect(Collectors.toList());
+		if (!exceptions.isEmpty()) {
+			Exception e = exceptions.get(0);
+			exceptions.stream().skip(1).forEach(e::addSuppressed);
+			throw e;
+		}
+	}
 
 }
