@@ -9,7 +9,7 @@ import java.util.Set;
  *
  * @author mlaszloffy
  */
-public interface LaneProvenanceProvider {
+public interface LaneProvenanceProvider extends AutoCloseable {
 
     public Collection<LaneProvenance> getLaneProvenance();
 

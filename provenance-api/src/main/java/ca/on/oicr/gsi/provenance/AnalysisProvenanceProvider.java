@@ -9,7 +9,7 @@ import java.util.Set;
  *
  * @author mlaszloffy
  */
-public interface AnalysisProvenanceProvider {
+public interface AnalysisProvenanceProvider extends AutoCloseable {
 
     public Collection<AnalysisProvenance> getAnalysisProvenance();
 
