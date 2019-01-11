@@ -18,7 +18,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.mockito.Mockito;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -136,13 +135,13 @@ public abstract class ProvenanceClientBase {
 
         when(app.getAnalysisProvenance(anyMap())).thenReturn(Arrays.asList(ap1, ap2, ap3, ap4));
         when(app.getAnalysisProvenance()).thenReturn(Arrays.asList(ap1, ap2, ap3, ap4));
-        when(spp.getSampleProvenance()).thenReturn(Arrays.asList(sp1, sp2));
-        when(lpp.getLaneProvenance()).thenReturn(Arrays.asList(lp));
+        when(spp.getSampleProvenance()).thenAnswer(i -> Arrays.asList(sp1, sp2));
+        when(lpp.getLaneProvenance()).thenAnswer(i -> Arrays.asList(lp));
     }
 
     @Test
     public void checkDefaultState() {
-        Collection<FileProvenance> fps = provenanceClient.getFileProvenance();
+        Collection<? extends FileProvenance> fps = provenanceClient.getFileProvenance();
         assertEquals(fps.size(), expectedFpsSize);
         Map<Status, Integer> s = getStatusCount(fps);
         assertEquals(s.get(Status.OKAY), Integer.valueOf(6));
@@ -156,7 +155,7 @@ public abstract class ProvenanceClientBase {
     @Test
     public void sampleProvenanceVersionChangeCheckStatusIsStale() {
         when(sp1.getVersion()).thenReturn("modified");
-        Collection<FileProvenance> fps = provenanceClient.getFileProvenance();
+        Collection<? extends FileProvenance> fps = provenanceClient.getFileProvenance();
         assertEquals(fps.size(), expectedFpsSize);
         Map<Status, Integer> s = getStatusCount(fps);
         assertEquals(s.get(Status.OKAY), Integer.valueOf(2));
@@ -170,7 +169,7 @@ public abstract class ProvenanceClientBase {
     @Test
     public void sampleProvenanceLastModifiedChangeCheckStatusIsStale() {
         when(sp1.getLastModified()).thenReturn(ZonedDateTime.parse("2000-01-01T00:00:00Z"));
-        Collection<FileProvenance> fps = provenanceClient.getFileProvenance();
+        Collection<? extends FileProvenance> fps = provenanceClient.getFileProvenance();
         assertEquals(fps.size(), expectedFpsSize);
         Map<Status, Integer> s = getStatusCount(fps);
         assertEquals(s.get(Status.OKAY), Integer.valueOf(2));
@@ -184,7 +183,7 @@ public abstract class ProvenanceClientBase {
     @Test
     public void laneProvenanceVersionChangeCheckStatusIsStale() {
         when(lp.getVersion()).thenReturn("modified");
-        Collection<FileProvenance> fps = provenanceClient.getFileProvenance();
+        Collection<? extends FileProvenance> fps = provenanceClient.getFileProvenance();
         assertEquals(fps.size(), expectedFpsSize);
         Map<Status, Integer> s = getStatusCount(fps);
         assertEquals(s.get(Status.OKAY), Integer.valueOf(2));
@@ -198,7 +197,7 @@ public abstract class ProvenanceClientBase {
     @Test
     public void laneProvenanceLastModifiedChangeCheckStatusIsStale() {
         when(lp.getLastModified()).thenReturn(ZonedDateTime.parse("2000-01-01T00:00:00Z"));
-        Collection<FileProvenance> fps = provenanceClient.getFileProvenance();
+        Collection<? extends FileProvenance> fps = provenanceClient.getFileProvenance();
         assertEquals(fps.size(), expectedFpsSize);
         Map<Status, Integer> s = getStatusCount(fps);
         assertEquals(s.get(Status.OKAY), Integer.valueOf(2));
@@ -212,7 +211,7 @@ public abstract class ProvenanceClientBase {
     @Test
     public void sampleProvenanceIdChangeCheckStatusIsError() {
         when(sp1.getProvenanceId()).thenReturn("modified");
-        Collection<FileProvenance> fps = provenanceClient.getFileProvenance();
+        Collection<? extends FileProvenance> fps = provenanceClient.getFileProvenance();
         assertEquals(fps.size(), expectedFpsSize);
         Map<Status, Integer> s = getStatusCount(fps);
         assertEquals(s.get(Status.OKAY), Integer.valueOf(2));
@@ -226,7 +225,7 @@ public abstract class ProvenanceClientBase {
     @Test
     public void laneProvenanceIdChangeCheckStatusIsError() {
         when(lp.getProvenanceId()).thenReturn("modified");
-        Collection<FileProvenance> fps = provenanceClient.getFileProvenance();
+        Collection<? extends FileProvenance> fps = provenanceClient.getFileProvenance();
         assertEquals(fps.size(), expectedFpsSize);
         Map<Status, Integer> s = getStatusCount(fps);
         assertEquals(s.get(Status.OKAY), Integer.valueOf(2));
@@ -347,7 +346,7 @@ public abstract class ProvenanceClientBase {
         provenanceClient.getFileProvenance();
     }
 
-    private Map<Status, Integer> getStatusCount(Collection<FileProvenance> fps) {
+    private Map<Status, Integer> getStatusCount(Collection<? extends FileProvenance> fps) {
         Map<Status, Integer> counts = new HashMap<>();
         for (Status s : Status.values()) {
             counts.put(s, 0);
@@ -358,7 +357,7 @@ public abstract class ProvenanceClientBase {
         return counts;
     }
 
-    private Collection<FileProvenance> getRecordsWithStatus(Collection<FileProvenance> fps, Status status) {
+    private Collection<FileProvenance> getRecordsWithStatus(Collection<? extends FileProvenance> fps, Status status) {
         Collection<FileProvenance> fpsFiltered = new ArrayList<>();
         for (FileProvenance fp : fps) {
             if (status.equals(fp.getStatus())) {
@@ -368,7 +367,7 @@ public abstract class ProvenanceClientBase {
         return fpsFiltered;
     }
 
-    private Set<StatusReason> getStatusReason(Collection<FileProvenance> fps) {
+    private Set<StatusReason> getStatusReason(Collection<? extends FileProvenance> fps) {
         Set<StatusReason> statusReasons = new HashSet<>();
         for (FileProvenance fp : fps) {
             if (!fp.getStatusReason().isEmpty()) {

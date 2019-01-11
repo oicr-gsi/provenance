@@ -11,8 +11,8 @@ import java.util.Set;
  */
 public interface LaneProvenanceProvider extends AutoCloseable {
 
-    public Collection<LaneProvenance> getLaneProvenance();
+    public Collection<? extends LaneProvenance> getLaneProvenance();
 
-    public Collection<LaneProvenance> getLaneProvenance(Map<FileProvenanceFilter, Set<String>> filters);
+    public Collection<? extends LaneProvenance> getLaneProvenance(Map<FileProvenanceFilter, Set<String>> filters);
 
 }

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
 
 /**
  *
@@ -36,9 +35,9 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
     private final Logger log = LogManager.getLogger(MultiThreadedDefaultProvenanceClient.class);
 
     private <T, TP> List<Future<?>> getByProvider(final Map<String, TP> providers,
-            final Map<FileProvenanceFilter, Set<String>> filters, ExecutorService executorService, Map<String, Map<String, T>> output,
-            Function<TP, Collection<T>> getProvenance,
-            BiFunction<TP, Map<FileProvenanceFilter, Set<String>>, Collection<T>> getProvenanceWithFilter,
+            final Map<FileProvenanceFilter, Set<String>> filters, ExecutorService executorService, Map<String, Map<String, ? extends T>> output,
+            Function<TP, Collection<? extends T>> getProvenance,
+            BiFunction<TP, Map<FileProvenanceFilter, Set<String>>, Collection<? extends T>> getProvenanceWithFilter,
             Function<T, String> getId) throws InterruptedException {
         List<Future<?>> futures = new ArrayList<>();
         for (Map.Entry<String, TP> e : providers.entrySet()) {
@@ -48,7 +47,7 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
             futures.add(executorService.submit(() -> {
                 Stopwatch sw = Stopwatch.createStarted();
                 log.info("Provider = [{}] started {}", provider, getProvenance.toString());
-                Collection<T> ps;
+                Collection<? extends T> ps;
                 if (filters == null || filters.isEmpty()) {
                     ps = getProvenance.apply(pp);
                 } else {
@@ -71,14 +70,14 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
     }
 
     private List<Future<?>> getSampleProvenanceFutureByProvider(final Map<FileProvenanceFilter, Set<String>> filters,
-            ExecutorService executorService, Map<String, Map<String, SampleProvenance>> output) throws InterruptedException {
+            ExecutorService executorService, Map<String, Map<String, ? extends SampleProvenance>> output) throws InterruptedException {
         return getByProvider(sampleProvenanceProviders, filters, executorService, output,
                 SampleProvenanceProvider::getSampleProvenance, SampleProvenanceProvider::getSampleProvenance,
                 SampleProvenance::getProvenanceId);
     }
 
     private List<Future<?>> getLaneProvenanceFutureByProvider(final Map<FileProvenanceFilter, Set<String>> filters,
-            ExecutorService executorService, Map<String, Map<String, LaneProvenance>> output) throws InterruptedException {
+            ExecutorService executorService, Map<String, Map<String, ? extends LaneProvenance>> output) throws InterruptedException {
         return getByProvider(laneProvenanceProviders, filters, executorService, output,
                 LaneProvenanceProvider::getLaneProvenance, LaneProvenanceProvider::getLaneProvenance,
                 LaneProvenance::getProvenanceId);
@@ -123,10 +122,10 @@ public class MultiThreadedDefaultProvenanceClient extends DefaultProvenanceClien
             // for example: AP record linked to SP(A) and SP(B), filtering on A would result
             // in FP(AP+SP(B))=ERROR
             List<Future<?>> futures = new ArrayList<>();
-            Map<String, Map<String, SampleProvenance>> spsByProvider = new HashMap<>();
+            Map<String, Map<String, ? extends SampleProvenance>> spsByProvider = new HashMap<>();
             futures.addAll(getSampleProvenanceFutureByProvider(Collections.<FileProvenanceFilter, Set<String>>emptyMap(), es,
                     spsByProvider));
-            Map<String, Map<String, LaneProvenance>> lpsByProvider = new HashMap<>();
+            Map<String, Map<String, ? extends LaneProvenance>> lpsByProvider = new HashMap<>();
             futures.addAll(getLaneProvenanceFutureByProvider(Collections.<FileProvenanceFilter, Set<String>>emptyMap(), es,
                     lpsByProvider));
             Map<String, Collection<AnalysisProvenance>> apsByProvider = new HashMap<>();
