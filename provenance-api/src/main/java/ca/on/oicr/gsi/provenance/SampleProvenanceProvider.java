@@ -11,8 +11,8 @@ import java.util.Set;
  */
 public interface SampleProvenanceProvider extends AutoCloseable {
 
-    public Collection<SampleProvenance> getSampleProvenance();
+    public Collection<? extends SampleProvenance> getSampleProvenance();
 
-    public Collection<SampleProvenance> getSampleProvenance(Map<FileProvenanceFilter, Set<String>> filters);
+    public Collection<? extends SampleProvenance> getSampleProvenance(Map<FileProvenanceFilter, Set<String>> filters);
 
 }

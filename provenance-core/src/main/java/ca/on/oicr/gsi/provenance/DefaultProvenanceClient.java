@@ -62,15 +62,15 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient, AutoCl
     }
 
     @Override
-    public Map<String, Collection<SampleProvenance>> getSampleProvenanceByProvider(Map<FileProvenanceFilter, Set<String>> filters) {
-        Map<String, Collection<SampleProvenance>> spsByProvider = new HashMap<>();
+    public Map<String, Collection<? extends SampleProvenance>> getSampleProvenanceByProvider(Map<FileProvenanceFilter, Set<String>> filters) {
+        Map<String, Collection<? extends SampleProvenance>> spsByProvider = new HashMap<>();
         for (Entry<String, SampleProvenanceProvider> e : sampleProvenanceProviders.entrySet()) {
             String provider = e.getKey();
             SampleProvenanceProvider spp = e.getValue();
 
             Stopwatch sw = Stopwatch.createStarted();
             log.info("Provider = [{}] started getSampleProvenance()", provider);
-            Collection<SampleProvenance> sps;
+            Collection<? extends SampleProvenance> sps;
             if (filters == null || filters.isEmpty()) {
                 sps = spp.getSampleProvenance();
             } else {
@@ -84,10 +84,10 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient, AutoCl
     }
 
     @Override
-    public Map<String, Map<String, SampleProvenance>> getSampleProvenanceByProviderAndId(Map<FileProvenanceFilter, Set<String>> filters) {
-        Map<String, Map<String, SampleProvenance>> spsByProviderAndId = new HashMap<>();
+    public Map<String, Map<String, ? extends SampleProvenance>> getSampleProvenanceByProviderAndId(Map<FileProvenanceFilter, Set<String>> filters) {
+        Map<String, Map<String, ? extends SampleProvenance>> spsByProviderAndId = new HashMap<>();
 
-        for (Entry<String, Collection<SampleProvenance>> e : getSampleProvenanceByProvider(filters).entrySet()) {
+        for (Entry<String, Collection<? extends SampleProvenance>> e : getSampleProvenanceByProvider(filters).entrySet()) {
             String provider = e.getKey();
             Map<String, SampleProvenance> spsById = new HashMap<>();
             for (SampleProvenance sp : e.getValue()) {
@@ -103,15 +103,15 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient, AutoCl
     }
 
     @Override
-    public Map<String, Collection<LaneProvenance>> getLaneProvenanceByProvider(Map<FileProvenanceFilter, Set<String>> filters) {
-        Map<String, Collection<LaneProvenance>> lpsByProvider = new HashMap<>();
+    public Map<String, Collection<? extends LaneProvenance>> getLaneProvenanceByProvider(Map<FileProvenanceFilter, Set<String>> filters) {
+        Map<String, Collection<? extends LaneProvenance>> lpsByProvider = new HashMap<>();
         for (Entry<String, LaneProvenanceProvider> e : laneProvenanceProviders.entrySet()) {
             String provider = e.getKey();
             LaneProvenanceProvider lpp = e.getValue();
 
             Stopwatch sw = Stopwatch.createStarted();
             log.info("Provider = [{}] started getLaneProvenance()", provider);
-            Collection<LaneProvenance> lps;
+            Collection<? extends LaneProvenance> lps;
             if (filters == null || filters.isEmpty()) {
                 lps = lpp.getLaneProvenance();
             } else {
@@ -128,9 +128,9 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient, AutoCl
     }
 
     @Override
-    public Map<String, Map<String, LaneProvenance>> getLaneProvenanceByProviderAndId(Map<FileProvenanceFilter, Set<String>> filters) {
-        Map<String, Map<String, LaneProvenance>> lpsByProviderAndId = new HashMap<>();
-        for (Entry<String, Collection<LaneProvenance>> e : getLaneProvenanceByProvider(filters).entrySet()) {
+    public Map<String, Map<String,? extends  LaneProvenance>> getLaneProvenanceByProviderAndId(Map<FileProvenanceFilter, Set<String>> filters) {
+        Map<String, Map<String, ? extends LaneProvenance>> lpsByProviderAndId = new HashMap<>();
+        for (Entry<String, Collection<? extends LaneProvenance>> e : getLaneProvenanceByProvider(filters).entrySet()) {
             String provider = e.getKey();
 
             Map<String, LaneProvenance> lpsById = new HashMap<>();
@@ -168,59 +168,59 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient, AutoCl
     }
 
     @Override
-    public Collection<SampleProvenance> getSampleProvenance() {
+    public Collection<? extends SampleProvenance> getSampleProvenance() {
         List<SampleProvenance> sps = new ArrayList<>();
-        for (Map<String, SampleProvenance> e : getSampleProvenanceByProviderAndId(null).values()) {
+        for (Map<String, ? extends SampleProvenance> e : getSampleProvenanceByProviderAndId(null).values()) {
             sps.addAll(e.values());
         }
         return sps;
     }
 
     @Override
-    public Collection<SampleProvenance> getSampleProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+    public Collection<? extends SampleProvenance> getSampleProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
         List<SampleProvenance> sps = new ArrayList<>();
-        for (Map<String, SampleProvenance> e : getSampleProvenanceByProviderAndId(filters).values()) {
+        for (Map<String, ? extends SampleProvenance> e : getSampleProvenanceByProviderAndId(filters).values()) {
             sps.addAll(e.values());
         }
         return sps;
     }
 
     @Override
-    public Collection<LaneProvenance> getLaneProvenance() {
+    public Collection<? extends LaneProvenance> getLaneProvenance() {
         List<LaneProvenance> lps = new ArrayList<>();
-        for (Map<String, LaneProvenance> e : getLaneProvenanceByProviderAndId(null).values()) {
+        for (Map<String, ? extends LaneProvenance> e : getLaneProvenanceByProviderAndId(null).values()) {
             lps.addAll(e.values());
         }
         return lps;
     }
 
     @Override
-    public Collection<LaneProvenance> getLaneProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+    public Collection<? extends LaneProvenance> getLaneProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
         List<LaneProvenance> lps = new ArrayList<>();
-        for (Map<String, LaneProvenance> e : getLaneProvenanceByProviderAndId(filters).values()) {
+        for (Map<String, ? extends LaneProvenance> e : getLaneProvenanceByProviderAndId(filters).values()) {
             lps.addAll(e.values());
         }
         return lps;
     }
 
-    public Collection<AnalysisProvenance> getAnalysisProvenance() {
+    public Collection<? extends AnalysisProvenance> getAnalysisProvenance() {
         List<AnalysisProvenance> aps = new ArrayList<>();
-        for (Collection<AnalysisProvenance> e : getAnalysisProvenanceByProvider(null).values()) {
+        for (Collection<? extends AnalysisProvenance> e : getAnalysisProvenanceByProvider(null).values()) {
             aps.addAll(e);
         }
         return aps;
     }
 
-    public Collection<AnalysisProvenance> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
+    public Collection<? extends AnalysisProvenance> getAnalysisProvenance(Map<FileProvenanceFilter, Set<String>> filters) {
         List<AnalysisProvenance> aps = new ArrayList<>();
-        for (Collection<AnalysisProvenance> e : getAnalysisProvenanceByProvider(filters).values()) {
+        for (Collection<? extends AnalysisProvenance> e : getAnalysisProvenanceByProvider(filters).values()) {
             aps.addAll(e);
         }
         return aps;
     }
 
     @Override
-    public Collection<FileProvenance> getFileProvenance() {
+    public Collection<? extends FileProvenance> getFileProvenance() {
         return getFileProvenance(
                 getSampleProvenanceByProviderAndId(Collections.<FileProvenanceFilter, Set<String>>emptyMap()),
                 getLaneProvenanceByProviderAndId(Collections.<FileProvenanceFilter, Set<String>>emptyMap()),
@@ -229,8 +229,8 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient, AutoCl
     }
 
     public Collection<FileProvenance> getFileProvenance(
-            Map<String, Map<String, SampleProvenance>> sampleProvenanceByProvider,
-            Map<String, Map<String, LaneProvenance>> laneProvenanceByProvider,
+            Map<String, Map<String, ? extends SampleProvenance>> map,
+            Map<String, Map<String, ? extends LaneProvenance>> map2,
             Map<String, Collection<AnalysisProvenance>> analysisProvenanceByProvider
     ) {
 
@@ -265,11 +265,11 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient, AutoCl
                     //get lims provenance objects
                     SampleProvenance sp = null;
                     LaneProvenance lp = null;
-                    if (sampleProvenanceByProvider.containsKey(limsKeyProvider)) {
-                        sp = sampleProvenanceByProvider.get(limsKeyProvider).get(limsKeyId);
+                    if (map.containsKey(limsKeyProvider)) {
+                        sp = map.get(limsKeyProvider).get(limsKeyId);
                     }
-                    if (laneProvenanceByProvider.containsKey(limsKeyProvider)) {
-                        lp = laneProvenanceByProvider.get(limsKeyProvider).get(limsKeyId);
+                    if (map2.containsKey(limsKeyProvider)) {
+                        lp = map2.get(limsKeyProvider).get(limsKeyId);
                     }
 
                     FileProvenanceFromAnalysisProvenance b;
@@ -381,7 +381,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient, AutoCl
         return applyFileProvenanceFilters(Operation.EXCLUDE, fps, excludeFilters);
     }
 
-    protected Collection<FileProvenance> applyFileProvenanceFilters(Collection<FileProvenance> fps, final Map<FileProvenanceFilter, Set<String>> filters) {
+    protected Collection<FileProvenance> applyFileProvenanceFilters(Collection<? extends FileProvenance> fps, final Map<FileProvenanceFilter, Set<String>> filters) {
         return applyFileProvenanceFilters(Operation.INCLUDE, fps, filters);
     }
 
@@ -401,7 +401,7 @@ public class DefaultProvenanceClient implements ExtendedProvenanceClient, AutoCl
         public abstract boolean match(FileProvenance f, Stream<Predicate<FileProvenance>> filters);
     }
 
-    protected Collection<FileProvenance> applyFileProvenanceFilters(Operation op, Collection<FileProvenance> fps, final Map<FileProvenanceFilter, Set<String>> filters) {
+    protected Collection<FileProvenance> applyFileProvenanceFilters(Operation op, Collection<? extends FileProvenance> fps, final Map<FileProvenanceFilter, Set<String>> filters) {
 
         List<Predicate<FileProvenance>> filterset = filters.entrySet().stream().<Predicate<FileProvenance>>map(entry -> f -> entry.getKey().checkFilter(f, entry.getValue())).collect(Collectors.toList());
 
