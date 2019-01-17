@@ -5,105 +5,102 @@ import java.util.Collection;
 import java.util.SortedMap;
 import java.util.SortedSet;
 
-/**
- *
- * @author mlaszloffy
- */
+/** @author mlaszloffy */
 public interface FileProvenance {
 
-    public enum Status {
+  public enum Status {
+    OKAY,
+    ERROR,
+    STALE;
+  }
 
-        OKAY, ERROR, STALE;
-    }
+  public Collection<String> getStudyTitles();
 
-    public Collection<String> getStudyTitles();
+  public SortedMap<String, SortedSet<String>> getStudyAttributes();
 
-    public SortedMap<String, SortedSet<String>> getStudyAttributes();
+  public Collection<String> getRootSampleNames();
 
-    public Collection<String> getRootSampleNames();
+  public Collection<String> getParentSampleNames();
 
-    public Collection<String> getParentSampleNames();
+  public Collection<String> getParentSampleOrganismIDs();
 
-    public Collection<String> getParentSampleOrganismIDs();
+  public SortedMap<String, SortedSet<String>> getParentSampleAttributes();
 
-    public SortedMap<String, SortedSet<String>> getParentSampleAttributes();
+  public Collection<String> getSampleNames();
 
-    public Collection<String> getSampleNames();
+  public Collection<String> getSampleOrganismIDs();
 
-    public Collection<String> getSampleOrganismIDs();
+  public Collection<String> getSampleOrganismCodes();
 
-    public Collection<String> getSampleOrganismCodes();
+  public SortedMap<String, SortedSet<String>> getSampleAttributes();
 
-    public SortedMap<String, SortedSet<String>> getSampleAttributes();
+  public Collection<String> getSequencerRunNames();
 
-    public Collection<String> getSequencerRunNames();
+  public SortedMap<String, SortedSet<String>> getSequencerRunAttributes();
 
-    public SortedMap<String, SortedSet<String>> getSequencerRunAttributes();
+  public Collection<String> getSequencerRunPlatformIDs();
 
-    public Collection<String> getSequencerRunPlatformIDs();
+  public Collection<String> getSequencerRunPlatformNames();
 
-    public Collection<String> getSequencerRunPlatformNames();
+  public Collection<String> getLaneNames();
 
-    public Collection<String> getLaneNames();
+  public Collection<String> getLaneNumbers();
 
-    public Collection<String> getLaneNumbers();
+  public SortedMap<String, SortedSet<String>> getLaneAttributes();
 
-    public SortedMap<String, SortedSet<String>> getLaneAttributes();
+  public String getWorkflowName();
 
-    public String getWorkflowName();
+  public String getWorkflowVersion();
 
-    public String getWorkflowVersion();
+  public Integer getWorkflowSWID();
 
-    public Integer getWorkflowSWID();
+  public SortedMap<String, SortedSet<String>> getWorkflowAttributes();
 
-    public SortedMap<String, SortedSet<String>> getWorkflowAttributes();
+  public String getWorkflowRunName();
 
-    public String getWorkflowRunName();
+  public String getWorkflowRunStatus();
 
-    public String getWorkflowRunStatus();
+  public Integer getWorkflowRunSWID();
 
-    public Integer getWorkflowRunSWID();
+  public SortedMap<String, SortedSet<String>> getWorkflowRunAttributes();
 
-    public SortedMap<String, SortedSet<String>> getWorkflowRunAttributes();
+  public SortedSet<Integer> getWorkflowRunInputFileSWIDs();
 
-    public SortedSet<Integer> getWorkflowRunInputFileSWIDs();
+  public String getProcessingAlgorithm();
 
-    public String getProcessingAlgorithm();
+  public Integer getProcessingSWID();
 
-    public Integer getProcessingSWID();
+  public SortedMap<String, SortedSet<String>> getProcessingAttributes();
 
-    public SortedMap<String, SortedSet<String>> getProcessingAttributes();
+  public String getProcessingStatus();
 
-    public String getProcessingStatus();
+  public String getFileMetaType();
 
-    public String getFileMetaType();
+  public Integer getFileSWID();
 
-    public Integer getFileSWID();
+  public SortedMap<String, SortedSet<String>> getFileAttributes();
 
-    public SortedMap<String, SortedSet<String>> getFileAttributes();
+  public String getFilePath();
 
-    public String getFilePath();
+  public String getFileMd5sum();
 
-    public String getFileMd5sum();
+  public String getFileSize();
 
-    public String getFileSize();
+  public String getFileDescription();
 
-    public String getFileDescription();
+  public String getSkip();
 
-    public String getSkip();
+  public ZonedDateTime getLastModified();
 
-    public ZonedDateTime getLastModified();
+  public Collection<IusLimsKey> getIusLimsKeys();
 
-    public Collection<IusLimsKey> getIusLimsKeys();
+  public Collection<String> getIusSWIDs();
 
-    public Collection<String> getIusSWIDs();
+  public Collection<String> getIusTags();
 
-    public Collection<String> getIusTags();
+  public SortedMap<String, SortedSet<String>> getIusAttributes();
 
-    public SortedMap<String, SortedSet<String>> getIusAttributes();
+  public Status getStatus();
 
-    public Status getStatus();
-
-    public String getStatusReason();
-
+  public String getStatusReason();
 }

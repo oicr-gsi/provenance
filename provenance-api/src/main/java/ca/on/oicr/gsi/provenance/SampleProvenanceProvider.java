@@ -5,14 +5,11 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-/**
- *
- * @author mlaszloffy
- */
+/** @author mlaszloffy */
 public interface SampleProvenanceProvider extends AutoCloseable {
 
-    public Collection<? extends SampleProvenance> getSampleProvenance();
+  public Collection<? extends SampleProvenance> getSampleProvenance();
 
-    public Collection<? extends SampleProvenance> getSampleProvenance(Map<FileProvenanceFilter, Set<String>> filters);
-
+  public Collection<? extends SampleProvenance> getSampleProvenance(
+      Map<FileProvenanceFilter, Set<String>> filters);
 }

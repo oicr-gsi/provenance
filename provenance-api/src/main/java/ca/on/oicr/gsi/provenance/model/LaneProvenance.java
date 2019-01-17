@@ -4,26 +4,22 @@ import java.time.ZonedDateTime;
 import java.util.SortedMap;
 import java.util.SortedSet;
 
-/**
- *
- * @author mlaszloffy
- */
+/** @author mlaszloffy */
 public interface LaneProvenance extends LimsProvenance {
 
-    public String getSequencerRunName();
+  public String getSequencerRunName();
 
-    public SortedMap<String, SortedSet<String>> getSequencerRunAttributes();
+  public SortedMap<String, SortedSet<String>> getSequencerRunAttributes();
 
-    public String getSequencerRunPlatformModel();
+  public String getSequencerRunPlatformModel();
 
-    public String getLaneNumber();
+  public String getLaneNumber();
 
-    public SortedMap<String, SortedSet<String>> getLaneAttributes();
+  public SortedMap<String, SortedSet<String>> getLaneAttributes();
 
-    public Boolean getSkip();
+  public Boolean getSkip();
 
-    public String getLaneProvenanceId();
+  public String getLaneProvenanceId();
 
-    public ZonedDateTime getCreatedDate();
-
+  public ZonedDateTime getCreatedDate();
 }
