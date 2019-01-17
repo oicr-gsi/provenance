@@ -5,58 +5,54 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 
-/**
- *
- * @author mlaszloffy
- */
+/** @author mlaszloffy */
 public interface AnalysisProvenance {
 
-    public String getWorkflowName();
+  public String getWorkflowName();
 
-    public String getWorkflowVersion();
+  public String getWorkflowVersion();
 
-    public Integer getWorkflowId();
+  public Integer getWorkflowId();
 
-    public SortedMap<String, SortedSet<String>> getWorkflowAttributes();
+  public SortedMap<String, SortedSet<String>> getWorkflowAttributes();
 
-    public String getWorkflowRunName();
+  public String getWorkflowRunName();
 
-    public String getWorkflowRunStatus();
+  public String getWorkflowRunStatus();
 
-    public Integer getWorkflowRunId();
+  public Integer getWorkflowRunId();
 
-    public SortedMap<String, SortedSet<String>> getWorkflowRunAttributes();
+  public SortedMap<String, SortedSet<String>> getWorkflowRunAttributes();
 
-    public SortedSet<Integer> getWorkflowRunInputFileIds();
+  public SortedSet<Integer> getWorkflowRunInputFileIds();
 
-    public String getProcessingAlgorithm();
+  public String getProcessingAlgorithm();
 
-    public Integer getProcessingId();
+  public Integer getProcessingId();
 
-    public SortedMap<String, SortedSet<String>> getProcessingAttributes();
+  public SortedMap<String, SortedSet<String>> getProcessingAttributes();
 
-    public String getProcessingStatus();
+  public String getProcessingStatus();
 
-    public String getFileMetaType();
+  public String getFileMetaType();
 
-    public Integer getFileId();
+  public Integer getFileId();
 
-    public String getFilePath();
+  public String getFilePath();
 
-    public String getFileMd5sum();
+  public String getFileMd5sum();
 
-    public String getFileSize();
+  public String getFileSize();
 
-    public String getFileDescription();
+  public String getFileDescription();
 
-    public SortedMap<String, SortedSet<String>> getFileAttributes();
+  public SortedMap<String, SortedSet<String>> getFileAttributes();
 
-    public Boolean getSkip();
+  public Boolean getSkip();
 
-    public ZonedDateTime getLastModified();
+  public ZonedDateTime getLastModified();
 
-    public Set<IusLimsKey> getIusLimsKeys();
+  public Set<IusLimsKey> getIusLimsKeys();
 
-    public SortedMap<String, SortedSet<String>> getIusAttributes();
-
+  public SortedMap<String, SortedSet<String>> getIusAttributes();
 }
