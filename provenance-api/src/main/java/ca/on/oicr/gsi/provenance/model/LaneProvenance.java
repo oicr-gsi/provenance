@@ -13,6 +13,8 @@ public interface LaneProvenance extends LimsProvenance {
 
   public String getSequencerRunPlatformModel();
 
+  public String getSequencerRunPlatform();
+
   public String getLaneNumber();
 
   public SortedMap<String, SortedSet<String>> getLaneAttributes();

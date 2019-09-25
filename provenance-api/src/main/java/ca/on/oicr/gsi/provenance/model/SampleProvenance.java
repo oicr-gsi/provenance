@@ -25,6 +25,8 @@ public interface SampleProvenance extends LimsProvenance {
 
   public String getSequencerRunPlatformModel();
 
+  public String getSequencerRunPlatform();
+
   public String getLaneNumber();
 
   public SortedMap<String, SortedSet<String>> getLaneAttributes();
