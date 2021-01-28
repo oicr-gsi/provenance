@@ -22,6 +22,20 @@ Finally, using the above API model, LIMS and analysis metadata can be combined i
 mvn clean install
 ```
 
+## Release Procedure
+
+Replace `${TYPE}` below with the release type you wish to perform:
+
+* major: huge changes - should be very rare
+* minor: noteworthy changes - standard release
+* patch: inconsequential changes and bug fixes only
+
+```
+git checkout master
+git pull
+./release ${TYPE}
+```
+
 ## Support
 
 For support, please file an issue on the Github project or send an email to gsi@oicr.on.ca .
