@@ -44,7 +44,8 @@ git pull
 mvn clean install
 mvn versions:set -DnewVersion=${RELEASE_VERSION} -DgenerateBackupPoms=false
 git commit -a -m "Provenance ${RELEASE_VERSION} release"
-git tag -a v${VERSION} -m "Provenance ${RELEASE_VERSION} release"
+git tag -a v${RELEASE_VERSION} -m "Provenance ${RELEASE_VERSION} release"
+mvn clean install
 mvn deploy
 mvn versions:set -DnextSnapshot=true -DgenerateBackupPoms=false
 git commit -a -m "prepared for next development iteration"
