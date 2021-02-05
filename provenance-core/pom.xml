@@ -56,7 +56,7 @@
               <configuration>
                 <archive>
                   <manifestEntries>
-                    <Automatic-Module-Name>ca.oicr.gsi.provenance.client</Automatic-Module-Name>
+                    <Automatic-Module-Name>ca.on.oicr.gsi.provenance.client</Automatic-Module-Name>
                 </manifestEntries>
                 </archive>
               </configuration>

@@ -25,7 +25,7 @@
             <configuration>
               <archive>
                 <manifestEntries>
-                  <Automatic-Module-Name>ca.oicr.gsi.provenance.api</Automatic-Module-Name>
+                  <Automatic-Module-Name>ca.on.oicr.gsi.provenance.api</Automatic-Module-Name>
                 </manifestEntries>
               </archive>
             </configuration>
