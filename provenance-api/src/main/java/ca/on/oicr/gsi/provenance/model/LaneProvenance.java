@@ -7,19 +7,19 @@ import java.util.SortedSet;
 /** @author mlaszloffy */
 public interface LaneProvenance extends LimsProvenance {
 
-  public String getSequencerRunName();
+  String getSequencerRunName();
 
-  public SortedMap<String, SortedSet<String>> getSequencerRunAttributes();
+  SortedMap<String, SortedSet<String>> getSequencerRunAttributes();
 
-  public String getSequencerRunPlatformModel();
+  String getSequencerRunPlatformModel();
 
-  public String getLaneNumber();
+  String getLaneNumber();
 
-  public SortedMap<String, SortedSet<String>> getLaneAttributes();
+  SortedMap<String, SortedSet<String>> getLaneAttributes();
 
-  public Boolean getSkip();
+  Boolean getSkip();
 
-  public String getLaneProvenanceId();
+  String getLaneProvenanceId();
 
-  public ZonedDateTime getCreatedDate();
+  ZonedDateTime getCreatedDate();
 }

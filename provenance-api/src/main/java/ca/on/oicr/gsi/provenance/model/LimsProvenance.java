@@ -5,9 +5,9 @@ import java.time.ZonedDateTime;
 /** @author mlaszloffy */
 public interface LimsProvenance {
 
-  public String getProvenanceId();
+  String getProvenanceId();
 
-  public String getVersion();
+  String getVersion();
 
-  public ZonedDateTime getLastModified();
+  ZonedDateTime getLastModified();
 }

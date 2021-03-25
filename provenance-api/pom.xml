@@ -10,13 +10,6 @@
     <artifactId>provenance-api</artifactId>
     <packaging>jar</packaging>
     
-    <dependencies>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-    </dependencies>
-
     <build>
        <plugins>
           <plugin>
