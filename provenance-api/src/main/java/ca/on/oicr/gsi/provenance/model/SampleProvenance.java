@@ -7,33 +7,33 @@ import java.util.SortedSet;
 /** @author mlaszloffy */
 public interface SampleProvenance extends LimsProvenance {
 
-  public String getStudyTitle();
+  String getStudyTitle();
 
-  public SortedMap<String, SortedSet<String>> getStudyAttributes();
+  SortedMap<String, SortedSet<String>> getStudyAttributes();
 
-  public String getRootSampleName();
+  String getRootSampleName();
 
-  public String getParentSampleName();
+  String getParentSampleName();
 
-  public String getSampleName();
+  String getSampleName();
 
-  public SortedMap<String, SortedSet<String>> getSampleAttributes();
+  SortedMap<String, SortedSet<String>> getSampleAttributes();
 
-  public String getSequencerRunName();
+  String getSequencerRunName();
 
-  public SortedMap<String, SortedSet<String>> getSequencerRunAttributes();
+  SortedMap<String, SortedSet<String>> getSequencerRunAttributes();
 
-  public String getSequencerRunPlatformModel();
+  String getSequencerRunPlatformModel();
 
-  public String getLaneNumber();
+  String getLaneNumber();
 
-  public SortedMap<String, SortedSet<String>> getLaneAttributes();
+  SortedMap<String, SortedSet<String>> getLaneAttributes();
 
-  public String getIusTag();
+  String getIusTag();
 
-  public Boolean getSkip();
+  Boolean getSkip();
 
-  public String getSampleProvenanceId();
+  String getSampleProvenanceId();
 
-  public ZonedDateTime getCreatedDate();
+  ZonedDateTime getCreatedDate();
 }
