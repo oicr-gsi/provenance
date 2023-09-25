@@ -1,6 +1,7 @@
 package ca.on.oicr.gsi.provenance.model;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 
@@ -36,4 +37,6 @@ public interface SampleProvenance extends LimsProvenance {
   String getSampleProvenanceId();
 
   ZonedDateTime getCreatedDate();
+
+  List<String> getBatchIds();
 }
