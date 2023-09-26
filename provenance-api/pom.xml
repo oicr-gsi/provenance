@@ -4,7 +4,7 @@
     <parent>
         <groupId>ca.on.oicr.gsi</groupId>
         <artifactId>provenance</artifactId>
-        <version>1.3.2-SNAPSHOT</version>
+        <version>1.4.0</version>
     </parent>
     
     <artifactId>provenance-api</artifactId>
